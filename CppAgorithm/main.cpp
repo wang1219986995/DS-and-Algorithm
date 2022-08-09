@@ -12,7 +12,7 @@ using namespace std;
 
 int main()
 {
-    vector<int> values = {1,3,4,6,9,2,12,7,333,211,245,145,198};
+    vector<int> values = {1,-3,4,-6,99,2,12,7};
     inseration_sort<int>(values);
     for(auto ite : values)
     {

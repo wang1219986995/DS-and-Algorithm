@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <iostream>
 
-
-
 template <typename T>
 void inseration_sort(std::vector<T> &values)
 {
@@ -23,6 +21,15 @@ void inseration_sort(std::vector<T> &values)
             }
         }
     }
+}
+
+
+
+template <typename T>
+void merge_sort(std::vector<T> &values)
+{
+
+
 }
 
 
