@@ -1,5 +1,7 @@
 #include <iostream>
-#include "sort.h"
+#include <sstream>
+#include "Chapter4/MatrixMultiply.h"
+
 using namespace std;
 
 
@@ -12,13 +14,11 @@ using namespace std;
 
 int main()
 {
-    vector<int> values = {1,-3,4,-6,99,2,12,7};
-    inseration_sort<int>(values);
-    for(auto ite : values)
-    {
-        cout << ite << " ";
-    }
-    cout << endl;
+    vector<int> v1 = { 1,2,3 };
+    vector<int> v2 = { 4,5,6 };
+    vector<int> v = v1 + v2;
+    cout << v << endl;
+
 
 
 
