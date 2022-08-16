@@ -129,7 +129,7 @@ namespace MySTL {
     inline typename iterator_traits<_Iter>::value_type*
     value_type(const _Iter& __i) { return __value_type(__i); }
 
-#define ITERATOR_CATEGORY(iter) MySTL::__iterator_category(__i)
+#define ITERATOR_CATEGORY(iter) MySTL::__iterator_category(iter)
 #define DISTANCE_TYPE(iter) MySTL::__distance_type(iter)
 #define VALUE_TYPE(iter) MySTL::__value_type(iter)
 
