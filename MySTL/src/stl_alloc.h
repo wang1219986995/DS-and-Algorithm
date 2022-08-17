@@ -15,6 +15,34 @@
 
 namespace MySTL{
 
+class malloc_alloc {
+public:
+    static void *allocate(size_t n)
+    {
+        void* result = malloc(n);
+        if( 0 == result)
+        {
+            fprintf(stderr, "Out of memory.");
+            exit(1);
+        }
+        return result;
+    }
+
+    static void deallocate(void* p, size_t) { free(p);}
+    static void* reallocate(void* p, size_t , size_t new_sz)
+    {
+        void* result = realloc(p, new_sz);
+        if(0 == result)
+        {
+            fprintf(stderr, "Out of memory.");
+            exit(1);
+        }
+        return result;
+    }
+};
+
+
+
 enum { ALIGN = 8};
 enum { MAX_BYTES = 128};
 enum { NFREELISTS = 16}; // _MAX_BYTES/_ALIGN
@@ -46,23 +74,99 @@ private:
     static size_t S_heap_size;
 
 public:
-    //TODO: 待实现
     static void* allocate(size_t n)
     {
-
+        void* ret = 0;
+        if(n > MAX_BYTES)
+            ret = malloc_alloc::allocate(n);
+        else
+        {
+            Obj* volatile* my_free_list = S_free_list + S_freelist_index(n);
+            Obj* result = *my_free_list;
+            if(0 == result) ret = S_refill(S_round_up(n));
+            else
+            {
+                *my_free_list = result->M_free_list_link;
+                ret = result;
+            }
+        }
+        return ret;
     }
-
 
     static void deallocate(void *p, size_t n)
     {
-
+        if(n > (size_t)MAX_BYTES)
+            malloc_alloc::deallocate(p, n);
+        else
+        {
+            Obj* volatile* my_free_list = S_free_list + S_freelist_index(n);
+            Obj* q = (Obj*)p;
+            //TODO: 这里不太明白
+            q->M_free_list_link = *my_free_list;
+            *my_free_list = q;
+        }
     }
 
 
     static void* reallocate(void *p, size_t old_sz, size_t new_sz);
 };
 
+char* default_alloc::S_start_free = 0;
+char* default_alloc::S_end_free = 0;
+size_t default_alloc::S_heap_size = 0;
+typename default_alloc::Obj* volatile default_alloc::S_free_list[] = {
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};
+
+
+
+
+
+
+
+
+
 typedef default_alloc alloc;
+
+
+char *default_alloc::S_chunk_alloc(size_t size, int &nobjs)
+{
+
+}
+
+
+void* default_alloc::S_refill(size_t n)
+{
+    int nobjs = 20;
+    char* chunk = S_chunk_alloc(n, nobjs);
+    Obj* volatile* my_free_list;
+    Obj* result;
+    Obj* current_Obj;
+    Obj* next_obj;
+    int i;
+    if(1 == nobjs)  return(chunk);
+    my_free_list = S_free_list + S_freelist_index(n);
+
+    result = (Obj*)chunk;
+    *my_free_list = next_obj = (Obj*)(chunk + n);
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 template <class Tp>

@@ -67,8 +67,6 @@ inline wchar_t* uninitialized_copy(const wchar_t* first, const wchar_t* last, wc
     return result + (last - first);
 }
 
-
-
 // uninitialized_copy_n
 template <class InputIter, class Size, class ForwardIter>
 pair<InputIter, ForwardIter>
