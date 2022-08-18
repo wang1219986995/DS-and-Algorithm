@@ -42,11 +42,9 @@ public:
 };
 
 
-
 enum { ALIGN = 8};
 enum { MAX_BYTES = 128};
 enum { NFREELISTS = 16}; // _MAX_BYTES/_ALIGN
-
 
 class default_alloc
 {
@@ -100,16 +98,15 @@ public:
         else
         {
             Obj* volatile* my_free_list = S_free_list + S_freelist_index(n);
-            Obj* q = (Obj*)p;
-            //TODO: 这里不太明白
-            q->M_free_list_link = *my_free_list;
-            *my_free_list = q;
+            ((Obj*)p)->M_free_list_link = *my_free_list;
+            *my_free_list = (Obj*)p;
         }
     }
 
-
     static void* reallocate(void *p, size_t old_sz, size_t new_sz);
 };
+
+typedef default_alloc alloc;
 
 char* default_alloc::S_start_free = 0;
 char* default_alloc::S_end_free = 0;
@@ -118,20 +115,57 @@ typename default_alloc::Obj* volatile default_alloc::S_free_list[] = {
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
+char *default_alloc::S_chunk_alloc(size_t size, int &nobjs) {
+    char *result;
+    size_t total_bytes = size * nobjs;
+    size_t bytes_left = S_end_free - S_start_free;
 
-
-
-
-
-
-
-
-typedef default_alloc alloc;
-
-
-char *default_alloc::S_chunk_alloc(size_t size, int &nobjs)
-{
-
+    if (bytes_left >= total_bytes) {
+        result = S_start_free;
+        S_start_free += total_bytes;
+        return result;
+    } else if (bytes_left >= size)
+    {
+        nobjs = (int)(bytes_left/size);
+        total_bytes = size * nobjs;
+        result = S_start_free;
+        S_start_free += total_bytes;
+        return result;
+    }
+    else
+    {
+        size_t bytes_to_get = 2 * total_bytes + S_round_up(S_heap_size >> 4);
+        if(bytes_left > 0)
+        {
+            Obj* volatile* my_free_list = S_free_list + S_freelist_index(bytes_left);
+            ((Obj*)S_start_free)->M_free_list_link = *my_free_list;
+            *my_free_list = (Obj*)S_start_free;
+        }
+        S_start_free = (char*)malloc(bytes_to_get);
+        if(0 == S_start_free)
+        {
+            size_t i;
+            Obj* volatile* my_free_list;
+            Obj* p;
+            for(i = size; i <= (size_t)MAX_BYTES; i+= (size_t)ALIGN)
+            {
+                my_free_list = S_free_list + S_freelist_index(i);
+                p = *my_free_list;
+                if( 0 != p)
+                {
+                    *my_free_list = p->M_free_list_link;
+                    S_start_free = (char*)p;
+                    S_end_free = S_start_free + i;
+                    return (S_chunk_alloc(size, nobjs));
+                }
+            }
+            S_end_free = 0;
+            S_start_free = (char*)malloc_alloc::allocate(bytes_to_get);
+        }
+        S_heap_size += bytes_to_get;
+        S_end_free = S_start_free + bytes_to_get;
+        return (S_chunk_alloc(size, nobjs));
+    }
 }
 
 
@@ -149,25 +183,34 @@ void* default_alloc::S_refill(size_t n)
 
     result = (Obj*)chunk;
     *my_free_list = next_obj = (Obj*)(chunk + n);
-
-
+    for(i = 1; ;i++)
+    {
+        result = (Obj*)chunk;
+        *my_free_list = next_obj = (Obj*)(chunk + n);
+        if(nobjs - 1 == i)
+        {
+            current_Obj->M_free_list_link = 0;
+            break;
+        }
+        else    current_Obj->M_free_list_link = next_obj;
+    }
+    return result;
 }
 
+void* default_alloc::reallocate(void *p, size_t old_sz, size_t new_sz)
+{
+    void* result;
+    size_t copy_sz;
+    if(old_sz > (size_t)MAX_BYTES && new_sz > (size_t)MAX_BYTES)
+        return (realloc(p, new_sz));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if(S_round_up(old_sz) == S_round_up(new_sz))    return p;
+    result = allocate(new_sz);
+    copy_sz = new_sz > old_sz ? old_sz : new_sz;
+    memcpy(result, p, copy_sz);
+    deallocate(p, old_sz);
+    return result;
+}
 
 template <class Tp>
 class allocator{
@@ -199,7 +242,6 @@ public:
         return n != 0 ? static_cast<pointer>(Alloc::allocate(n * sizeof(Tp))) : 0;
     }
 
-
     void deallocate(pointer p, size_type n)
     { Alloc::deallocate(p, n * sizeof(Tp)); }
 
@@ -212,15 +254,20 @@ public:
 };
 
 
+template<>
+class allocator<void>
+{
+public:
+    typedef size_t      size_type;
+    typedef ptrdiff_t   difference_type;
+    typedef void*       pointer;
+    typedef const void* const_pointer;
+    typedef void        value_type;
 
-
-
-
-
-
-
-
-
+    template<class Tp> struct rebind{
+        typedef allocator<Tp> other;
+    };
+};
 
 
 
