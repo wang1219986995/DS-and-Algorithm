@@ -270,6 +270,35 @@ public:
 };
 
 
+template <class Tp, class Allocator>
+struct Alloc_traits{
+    static const bool S_instalceless = false;
+};
+
+template <class Tp>
+struct Alloc_traits<Tp, malloc_alloc>
+{
+    static const bool S_instanceless = true;
+    typedef malloc_alloc allocator_type;
+};
+
+template <class Tp>
+struct Alloc_traits<Tp, default_alloc>
+{
+    static const bool S_instanceless = true;
+    typedef default_alloc allocator_type;
+};
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
