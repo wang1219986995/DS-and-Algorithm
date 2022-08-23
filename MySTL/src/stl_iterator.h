@@ -276,7 +276,6 @@ public:
         return *this;
     }
 
-
     Self operator-(difference_type n) const
     {
         return Self(current + n);
