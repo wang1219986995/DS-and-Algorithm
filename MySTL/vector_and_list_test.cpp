@@ -3,17 +3,19 @@
 #include <queue>
 #include <vector>
 #include <list>
-#include "My_Heap.h"
 
 // #include "src/alloc.h"
 using namespace std;
-bool condition_equal(int n)
-{  return n == 1; }
+#define PRINT_ELEMENTS(container) \
+    for(auto iter : container)    \
+        cout << iter << " ";       \
+    cout << endl;
 
 int main() {
 
     std::list<int> l = { 1, 81, 42, 37, 14, 72, 36, 59, 1, 1};
-    std::vector<int> v = {  81, 42, 37, 14, 72, 36, 59, 1, 1};
+    std::vector<int> v = {  1, 42, 37, 14, 72, 36, 59, 1, 1};
+    std::vector<int> temp(v);
 
     cout << "This is a comparison between vector and list elements memory address:" << endl;
     std::cout << "List elements memory address(discontinuous address): " << std::endl;
@@ -24,32 +26,25 @@ int main() {
     for(vector<int>::iterator iter = v.begin(); iter != v.end(); ++iter)
         cout << &(*iter) << "  ";
     cout << endl;
+    cout << endl;
 
 
 
     cout << "------------------vector test-----------------------" << endl;
     cout << "Befor change vector's elements, view all elemnets first:" << endl;
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     cout << "insert() function will insert a element in the position:" << endl;
     v.insert(v.begin() + 1, 2);
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
     cout << "This function will insert elements between two iterators:" << endl;
     vector<int> tmp = {3,4,5};
     v.insert(v.begin() + 2, tmp.begin(), tmp.end());
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     cout << "resize() function will reset vector's size:" << endl;
     v.resize(5);
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     std::cout << "vector's capacity and size is not same, size means current elements number, \n"
                  "capacity means current maximum number of elements that can ben stored." << std::endl;
@@ -61,27 +56,19 @@ int main() {
     v.push_back(82);
     v.push_back(83);
     v.push_back(84);
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     v.pop_back();
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     cout << "erase() and erase_if() function can delete elements:" << endl;
     cout << "First, we delete last element:" <<endl;
     v.erase(v.end() - 1);
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     cout << "Second, we delete all elements of greater than 80:" <<endl;
     std::erase_if(v, [](int n) { return n >= 80; });
-    for(auto iter : v)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(v);
 
     cout << "Last, we clear the vector:" <<endl;
     v.clear();
@@ -95,9 +82,7 @@ int main() {
     cout << "------------------list test-----------------------" << endl;
 
     cout << "Befor change list's elements, view all elemnets first:" << endl;
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
     cout << "Delete and add elements from list's begin and end:" <<endl;
     l.pop_front();
     l.pop_back();
@@ -110,9 +95,7 @@ int main() {
     l.push_front(5);
     l.push_back(99);
     l.push_back(100);
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "erase function can delete elements by position:" << endl;
     list<int>::iterator range_begin = l.begin();
@@ -120,49 +103,35 @@ int main() {
     advance(range_end, -1);
     cout << "delete one element:" << endl;
     l.erase(range_end);
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     advance(range_end, -1);
     advance(range_begin, 8);
     cout << "delete multiple elements:" << endl;
     l.erase(range_begin, range_end);
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "reverse list:" <<endl;
     l.reverse();
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "sort list:" <<endl;
     l.sort();
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
 
     cout << "merge list:" <<endl;
     list<int> tmp_list = {0,0,0,0,0,0};
     l.merge(tmp_list);
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "unique list:" <<endl;
     l.unique();
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "remoue elements equal to 0" <<endl;
     l.remove(0);
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
 
     cout << "remove elements that gerater than 80:" <<endl;
     struct condition{
@@ -170,16 +139,12 @@ int main() {
         bool operator()(int n) { return n > 80; }
     };
     int count = l.remove_if(condition());
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
     cout << "deleted elements count: " << count << endl;
 
     cout << "remove elements that gerater than 10:" <<endl;
     count = l.remove_if([](int n) { return n > 10; });
-    for(auto iter : l)
-        cout << iter << " ";
-    cout << endl;
+    PRINT_ELEMENTS(l);
     cout << "deleted elements count: " << count << endl;
 
     cout << "clear the list:" << endl;

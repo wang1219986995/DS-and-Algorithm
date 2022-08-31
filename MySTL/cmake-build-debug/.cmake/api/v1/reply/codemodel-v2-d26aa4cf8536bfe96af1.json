@@ -15,7 +15,9 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1,
+						2
 					]
 				}
 			],
@@ -30,7 +32,9 @@
 					"name" : "MySTL",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1,
+						2
 					]
 				}
 			],
@@ -38,9 +42,23 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "MySTL::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-MySTL-Debug-c893d2233527a892847d.json",
-					"name" : "MySTL",
+					"id" : "my_heap::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-my_heap-Debug-feae4ab292f3d2923046.json",
+					"name" : "my_heap",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "stack_and_queue::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-stack_and_queue-Debug-50bf1b01384d590b1adc.json",
+					"name" : "stack_and_queue",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "vector_and_list::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-vector_and_list-Debug-53ecdc24bdbb45cff8ec.json",
+					"name" : "vector_and_list",
 					"projectIndex" : 0
 				}
 			]
