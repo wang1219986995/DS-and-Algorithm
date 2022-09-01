@@ -1,0 +1,21 @@
+"D:\SoftWares\CLion\CLion 2022.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=D:/SoftWares/CLion/CLion 2022.2/bin/ninja/win/ninja.exe" -G Ninja -S E:\LearningMaterials\abseil-cpp-master\abseil-cpp-master -B E:\LearningMaterials\abseil-cpp-master\abseil-cpp-master\cmake-build-debug
+-- The CXX compiler identification is GNU 11.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: D:/SoftWares/CLion/CLion 2022.2/bin/mingw/bin/g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+CMake Warning at CMakeLists.txt:70 (message):
+  A future Abseil release will default ABSL_PROPAGATE_CXX_STD to ON for CMake
+  3.8 and up.  We recommend enabling this option to ensure your project still
+  builds correctly.
+
+
+-- Looking for C++ include pthread.h
+-- Looking for C++ include pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: E:/LearningMaterials/abseil-cpp-master/abseil-cpp-master/cmake-build-debug
