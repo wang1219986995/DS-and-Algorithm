@@ -15,6 +15,7 @@ link_directories(
 add_executable(vector_and_list vector_and_list_test.cpp)
 add_executable(stack_and_queue stack_and_queue.cpp)
 add_executable(my_heap my_heap.cpp)
+add_executable(main main.cpp)
 #add_executable(test TEST/test_unittest.cpp)
 #
 #target_link_libraries(test

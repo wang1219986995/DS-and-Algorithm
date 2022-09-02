@@ -145,6 +145,41 @@ build my_heap.exe: CXX_EXECUTABLE_LINKER__my_heap_Debug CMakeFiles/my_heap.dir/m
   TARGET_IMPLIB = libmy_heap.dll.a
   TARGET_PDB = my_heap.exe.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target main
+
+
+#############################################
+# Order-only phony target for main
+
+build cmake_object_order_depends_target_main: phony || CMakeFiles/main.dir
+
+build CMakeFiles/main.dir/main.cpp.obj: CXX_COMPILER__main_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/main.cpp || cmake_object_order_depends_target_main
+  DEP_FILE = CMakeFiles\main.dir\main.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
+  OBJECT_DIR = CMakeFiles\main.dir
+  OBJECT_FILE_DIR = CMakeFiles\main.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target main
+
+
+#############################################
+# Link the executable main.exe
+
+build main.exe: CXX_EXECUTABLE_LINKER__main_Debug CMakeFiles/main.dir/main.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
+  OBJECT_DIR = CMakeFiles\main.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = main.exe
+  TARGET_IMPLIB = libmain.dll.a
+  TARGET_PDB = main.exe.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -171,6 +206,8 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
+build main: phony main.exe
+
 build my_heap: phony my_heap.exe
 
 build stack_and_queue: phony stack_and_queue.exe
@@ -185,7 +222,7 @@ build vector_and_list: phony vector_and_list.exe
 #############################################
 # Folder: E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug
 
-build all: phony vector_and_list.exe stack_and_queue.exe my_heap.exe
+build all: phony vector_and_list.exe stack_and_queue.exe my_heap.exe main.exe
 
 # =============================================================================
 # Built-in targets
