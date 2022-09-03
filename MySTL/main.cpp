@@ -14,5 +14,14 @@ int main()
 {
     cout << "Hello!" <<endl;
     cout << CHAR_MAX << " " << SCHAR_MAX <<endl;
+    std::vector<int> v = {1,1,2,3,4,5,6,1};
+
+    std::unique(v.begin(), v.end());
+    for(auto iter : v)
+        cout << iter << " ";
+
+
+
+
     return 0;
 }
