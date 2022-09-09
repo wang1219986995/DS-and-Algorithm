@@ -6,21 +6,51 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <bitset>
+#include <queue>
+#include <deque>
 using namespace std;
 
+class Base
+{
+public:
 
+protected:
+    int a;
+};
+
+class Derive : public Base
+{
+public:
+
+    void set_a(int val) { a = val; }
+};
+
+class Derive2 : public Derive
+{
+public:
+    void reset_a(int val) { a = val; }
+};
 
 int main()
 {
+    std::queue<int> q;
+    std::deque<int> d;
     cout << "Hello!" <<endl;
-    cout << CHAR_MAX << " " << SCHAR_MAX <<endl;
-    std::vector<int> v = {1,1,2,3,4,5,6,1};
+    std::vector<int> v1 = {1,2,3,7};
+    std::vector<int> v2 = {2,3, 4, 5};
 
-    std::unique(v.begin(), v.end());
-    for(auto iter : v)
+    std::vector<int> res(v1.size() + v2.size());
+    std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), res.begin());
+
+
+    for(auto iter : res)
         cout << iter << " ";
+    cout << endl;
 
 
+    Derive2 test;
+    test.reset_a(10);
 
 
     return 0;
