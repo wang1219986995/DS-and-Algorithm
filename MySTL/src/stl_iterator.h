@@ -15,8 +15,12 @@ class back_insert_iterator{
 protected:
     Container* container;
 public:
-    typedef Container container_type;
-    typedef output_iterator_tag iterator_category;
+    typedef Container               container_type;
+    typedef output_iterator_tag     iterator_category;
+    typedef void                    value_type;
+    typedef void                    difference_type;
+    typedef void                    pointer;
+    typedef void                    reference;
 
     explicit back_insert_iterator(Container& x) : container(&x){}
     back_insert_iterator<Container>& operator=(const typename Container::value_type& value)
@@ -36,11 +40,10 @@ inline back_insert_iterator<Container> back_insert(Container& x)
 {   return back_insert_iterator<Container>(x);  }
 
 
-
 template <class Container>
 class front_insert_iterator{
 protected:
-    Container container;
+    Container* container;
 public:
     typedef Container           container_type;
     typedef output_iterator_tag iterator_category;
@@ -49,7 +52,8 @@ public:
     typedef void                pointer;
     typedef void                reference;
 
-    explicit front_insert_iterator(Container& x):container(&x){}
+
+    explicit front_insert_iterator(Container& x) : container(&x) {}
     front_insert_iterator<Container>& operator=(const typename Container::value_type& value)
     {
         container->push_front(value);
@@ -60,11 +64,16 @@ public:
     front_insert_iterator<Container>& operator++() { return *this; }
     front_insert_iterator<Container>& operator++(int) { return *this; }
 };
+
 template <class Container>
 inline output_iterator_tag interator_category(const front_insert_iterator<Container>&)
-{
-    return output_iterator_tag();
+{ return output_iterator_tag(); }
+
+template <class Container>
+inline front_insert_iterator<Container> front_inserter(Container& x) {
+    return front_insert_iterator<Container>(x);
 }
+
 
 template <class Container>
 class insert_iterator{

@@ -185,6 +185,56 @@ inline ForwardIter uninitialized_fill_n(ForwardIter first, Size n, const Tp& x)
 }
 
 
+template <class InputIter1, class InputIter2, class ForwardIter>
+inline ForwardIter __uninitialized_copy_copy(InputIter1 first1, InputIter1 last1,
+                                             InputIter2 first2, InputIter2 last2,
+                                             ForwardIter result)
+{
+    ForwardIter mid = uninitialized_copy(first1, last1, result);
+    try
+    {
+        return uninitialized_copy(first2, last2, mid);
+    }
+    catch (...)
+    {
+        _Destroy(result, mid);
+    }
+}
+
+template <class ForwardIter, class Tp, class InputIter>
+inline ForwardIter __uninitialized_fill_copy(ForwardIter result, ForwardIter mid, const Tp& x,
+                                             InputIter first, InputIter last)
+{
+    uninitialized_fill(result, mid, x);
+    try
+    {
+        return uninitialized_copy(first, last, mid);
+    }
+    catch (...)
+    {
+        _Destroy(result, mid);
+    }
+}
+
+template <class InputIter, class ForwardIter, class Tp>
+inline void __uninitialized_copy_fill(InputIter first1, InputIter last1,
+                                      ForwardIter first2, ForwardIter last2, const Tp& x)
+{
+    ForwardIter mid2 = uninitialized_copy(first1, last1, first2);
+    try
+    {
+        uninitialized_fill(mid2, last2, x);
+    }
+    catch (...)
+    {
+        _Destroy(first2, mid2);
+    }
+}
+
+
+
+
+
 }
 
 

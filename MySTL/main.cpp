@@ -9,6 +9,8 @@
 #include <bitset>
 #include <queue>
 #include <deque>
+#include <stddef.h>
+#include "gtest/gtest.h"
 using namespace std;
 
 class Base
@@ -34,6 +36,7 @@ public:
 
 int main()
 {
+    ptrdiff_t a;
     std::queue<int> q;
     std::deque<int> d;
     cout << "Hello!" <<endl;
@@ -52,6 +55,16 @@ int main()
     Derive2 test;
     test.reset_a(10);
 
+
+    std::vector<int> v;
+    std::generate_n(
+            std::back_insert_iterator<std::vector<int>>(v), // C++17: std::back_insert_iterator(v)
+            10, [n=0]() mutable { return ++n; }             // or use std::back_inserter helper
+    );
+
+    for (int n : v)
+        std::cout << n << ' ';
+    std::cout << '\n';
 
     return 0;
 }
