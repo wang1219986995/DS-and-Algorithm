@@ -66,7 +66,7 @@ public:
 };
 
 template <class Container>
-inline output_iterator_tag interator_category(const front_insert_iterator<Container>&)
+inline output_iterator_tag iterator_category(const front_insert_iterator<Container>&)
 { return output_iterator_tag(); }
 
 template <class Container>
@@ -119,9 +119,9 @@ inline insert_iterator<Container> inserter(Container& x, Iterator i)
 template <class BidirectionalIterator, class Tp, class Reference = Tp&,
             class Distance = ptrdiff_t>
 class reverse_bidirectional_iterator{
-
         typedef reverse_bidirectional_iterator<BidirectionalIterator,
                                         Tp, Reference, Distance> Self;
+
 protected:
         BidirectionalIterator current;
 public:
@@ -130,7 +130,6 @@ public:
     typedef Distance                   difference_type;
     typedef Tp*                        pointer;
     typedef Reference                  reference;
-
 
     reverse_bidirectional_iterator() {}
     explicit reverse_bidirectional_iterator(BidirectionalIterator x)
@@ -298,7 +297,7 @@ public:
     reference operator[](difference_type n) const { return *(*this + n); }
 };
 
-
+//TODO:  iostream iterator
 
 
 

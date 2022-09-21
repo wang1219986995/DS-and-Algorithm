@@ -41,111 +41,6 @@ include CMakeFiles/rules.ninja
 
 cmake_ninja_workdir = E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target vector_and_list
-
-
-#############################################
-# Order-only phony target for vector_and_list
-
-build cmake_object_order_depends_target_vector_and_list: phony || CMakeFiles/vector_and_list.dir
-
-build CMakeFiles/vector_and_list.dir/vector_and_list_test.cpp.obj: CXX_COMPILER__vector_and_list_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/vector_and_list_test.cpp || cmake_object_order_depends_target_vector_and_list
-  DEP_FILE = CMakeFiles\vector_and_list.dir\vector_and_list_test.cpp.obj.d
-  FLAGS = -g -std=gnu++20
-  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
-  OBJECT_DIR = CMakeFiles\vector_and_list.dir
-  OBJECT_FILE_DIR = CMakeFiles\vector_and_list.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target vector_and_list
-
-
-#############################################
-# Link the executable vector_and_list.exe
-
-build vector_and_list.exe: CXX_EXECUTABLE_LINKER__vector_and_list_Debug CMakeFiles/vector_and_list.dir/vector_and_list_test.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
-  OBJECT_DIR = CMakeFiles\vector_and_list.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = vector_and_list.exe
-  TARGET_IMPLIB = libvector_and_list.dll.a
-  TARGET_PDB = vector_and_list.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target stack_and_queue
-
-
-#############################################
-# Order-only phony target for stack_and_queue
-
-build cmake_object_order_depends_target_stack_and_queue: phony || CMakeFiles/stack_and_queue.dir
-
-build CMakeFiles/stack_and_queue.dir/stack_and_queue.cpp.obj: CXX_COMPILER__stack_and_queue_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/stack_and_queue.cpp || cmake_object_order_depends_target_stack_and_queue
-  DEP_FILE = CMakeFiles\stack_and_queue.dir\stack_and_queue.cpp.obj.d
-  FLAGS = -g -std=gnu++20
-  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
-  OBJECT_DIR = CMakeFiles\stack_and_queue.dir
-  OBJECT_FILE_DIR = CMakeFiles\stack_and_queue.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target stack_and_queue
-
-
-#############################################
-# Link the executable stack_and_queue.exe
-
-build stack_and_queue.exe: CXX_EXECUTABLE_LINKER__stack_and_queue_Debug CMakeFiles/stack_and_queue.dir/stack_and_queue.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
-  OBJECT_DIR = CMakeFiles\stack_and_queue.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = stack_and_queue.exe
-  TARGET_IMPLIB = libstack_and_queue.dll.a
-  TARGET_PDB = stack_and_queue.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target my_heap
-
-
-#############################################
-# Order-only phony target for my_heap
-
-build cmake_object_order_depends_target_my_heap: phony || CMakeFiles/my_heap.dir
-
-build CMakeFiles/my_heap.dir/my_heap.cpp.obj: CXX_COMPILER__my_heap_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/my_heap.cpp || cmake_object_order_depends_target_my_heap
-  DEP_FILE = CMakeFiles\my_heap.dir\my_heap.cpp.obj.d
-  FLAGS = -g -std=gnu++20
-  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
-  OBJECT_DIR = CMakeFiles\my_heap.dir
-  OBJECT_FILE_DIR = CMakeFiles\my_heap.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target my_heap
-
-
-#############################################
-# Link the executable my_heap.exe
-
-build my_heap.exe: CXX_EXECUTABLE_LINKER__my_heap_Debug CMakeFiles/my_heap.dir/my_heap.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
-  OBJECT_DIR = CMakeFiles\my_heap.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = my_heap.exe
-  TARGET_IMPLIB = libmy_heap.dll.a
-  TARGET_PDB = my_heap.exe.dbg
-
-# =============================================================================
 # Object build statements for EXECUTABLE target main
 
 
@@ -216,39 +111,109 @@ build sort.exe: CXX_EXECUTABLE_LINKER__sort_Debug CMakeFiles/sort.dir/sort_algor
   TARGET_PDB = sort.exe.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target test
+# Object build statements for EXECUTABLE target test_stl_iterator
 
 
 #############################################
-# Order-only phony target for test
+# Order-only phony target for test_stl_iterator
 
-build cmake_object_order_depends_target_test: phony || CMakeFiles/test.dir
+build cmake_object_order_depends_target_test_stl_iterator: phony || CMakeFiles/test_stl_iterator.dir
 
-build CMakeFiles/test.dir/TEST/stl_iterator_test.cpp.obj: CXX_COMPILER__test_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/TEST/stl_iterator_test.cpp || cmake_object_order_depends_target_test
-  DEP_FILE = CMakeFiles\test.dir\TEST\stl_iterator_test.cpp.obj.d
+build CMakeFiles/test_stl_iterator.dir/TEST/stl_iterator_test.cpp.obj: CXX_COMPILER__test_stl_iterator_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/TEST/stl_iterator_test.cpp || cmake_object_order_depends_target_test_stl_iterator
+  DEP_FILE = CMakeFiles\test_stl_iterator.dir\TEST\stl_iterator_test.cpp.obj.d
   FLAGS = -g -std=gnu++20
   INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
-  OBJECT_DIR = CMakeFiles\test.dir
-  OBJECT_FILE_DIR = CMakeFiles\test.dir\TEST
+  OBJECT_DIR = CMakeFiles\test_stl_iterator.dir
+  OBJECT_FILE_DIR = CMakeFiles\test_stl_iterator.dir\TEST
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target test
+# Link build statements for EXECUTABLE target test_stl_iterator
 
 
 #############################################
-# Link the executable test.exe
+# Link the executable test_stl_iterator.exe
 
-build test.exe: CXX_EXECUTABLE_LINKER__test_Debug CMakeFiles/test.dir/TEST/stl_iterator_test.cpp.obj
+build test_stl_iterator.exe: CXX_EXECUTABLE_LINKER__test_stl_iterator_Debug CMakeFiles/test_stl_iterator.dir/TEST/stl_iterator_test.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lgtest  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
-  OBJECT_DIR = CMakeFiles\test.dir
+  OBJECT_DIR = CMakeFiles\test_stl_iterator.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = test.exe
-  TARGET_IMPLIB = libtest.dll.a
-  TARGET_PDB = test.exe.dbg
+  TARGET_FILE = test_stl_iterator.exe
+  TARGET_IMPLIB = libtest_stl_iterator.dll.a
+  TARGET_PDB = test_stl_iterator.exe.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_stl_alloc
+
+
+#############################################
+# Order-only phony target for test_stl_alloc
+
+build cmake_object_order_depends_target_test_stl_alloc: phony || CMakeFiles/test_stl_alloc.dir
+
+build CMakeFiles/test_stl_alloc.dir/TEST/stl_alloc_test.cpp.obj: CXX_COMPILER__test_stl_alloc_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/TEST/stl_alloc_test.cpp || cmake_object_order_depends_target_test_stl_alloc
+  DEP_FILE = CMakeFiles\test_stl_alloc.dir\TEST\stl_alloc_test.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
+  OBJECT_DIR = CMakeFiles\test_stl_alloc.dir
+  OBJECT_FILE_DIR = CMakeFiles\test_stl_alloc.dir\TEST
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_stl_alloc
+
+
+#############################################
+# Link the executable test_stl_alloc.exe
+
+build test_stl_alloc.exe: CXX_EXECUTABLE_LINKER__test_stl_alloc_Debug CMakeFiles/test_stl_alloc.dir/TEST/stl_alloc_test.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lgtest  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
+  OBJECT_DIR = CMakeFiles\test_stl_alloc.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = test_stl_alloc.exe
+  TARGET_IMPLIB = libtest_stl_alloc.dll.a
+  TARGET_PDB = test_stl_alloc.exe.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_stl_vector
+
+
+#############################################
+# Order-only phony target for test_stl_vector
+
+build cmake_object_order_depends_target_test_stl_vector: phony || CMakeFiles/test_stl_vector.dir
+
+build CMakeFiles/test_stl_vector.dir/TEST/stl_vector_test.cpp.obj: CXX_COMPILER__test_stl_vector_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/TEST/stl_vector_test.cpp || cmake_object_order_depends_target_test_stl_vector
+  DEP_FILE = CMakeFiles\test_stl_vector.dir\TEST\stl_vector_test.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
+  OBJECT_DIR = CMakeFiles\test_stl_vector.dir
+  OBJECT_FILE_DIR = CMakeFiles\test_stl_vector.dir\TEST
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_stl_vector
+
+
+#############################################
+# Link the executable test_stl_vector.exe
+
+build test_stl_vector.exe: CXX_EXECUTABLE_LINKER__test_stl_vector_Debug CMakeFiles/test_stl_vector.dir/TEST/stl_vector_test.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lgtest  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
+  OBJECT_DIR = CMakeFiles\test_stl_vector.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = test_stl_vector.exe
+  TARGET_IMPLIB = libtest_stl_vector.dll.a
+  TARGET_PDB = test_stl_vector.exe.dbg
 
 
 #############################################
@@ -278,15 +243,13 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 
 build main: phony main.exe
 
-build my_heap: phony my_heap.exe
-
 build sort: phony sort.exe
 
-build stack_and_queue: phony stack_and_queue.exe
+build test_stl_alloc: phony test_stl_alloc.exe
 
-build test: phony test.exe
+build test_stl_iterator: phony test_stl_iterator.exe
 
-build vector_and_list: phony vector_and_list.exe
+build test_stl_vector: phony test_stl_vector.exe
 
 # =============================================================================
 # Folder targets.
@@ -296,7 +259,7 @@ build vector_and_list: phony vector_and_list.exe
 #############################################
 # Folder: E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug
 
-build all: phony vector_and_list.exe stack_and_queue.exe my_heap.exe main.exe sort.exe test.exe
+build all: phony main.exe sort.exe test_stl_iterator.exe test_stl_alloc.exe test_stl_vector.exe
 
 # =============================================================================
 # Built-in targets

@@ -15,6 +15,29 @@
 
 namespace MySTL{
 
+template <class Tp, class Alloc>
+class simple_alloc
+{
+public:
+    static Tp* allocate(size_t n)
+    { return 0 == n ? 0 : (Tp*) Alloc::allocate(n * sizeof(Tp)); }
+
+    static Tp* allocate(void)
+    { return (Tp*) Alloc::allocate(sizeof(Tp)); }
+
+    static void deallocate(Tp* p, size_t n)
+    { if(0 != n ) Alloc::deallocate(p, n * sizeof(Tp)); }
+
+    static void deallocate(Tp* p)
+    { Alloc::deallocate(p, sizeof(Tp)); }
+
+};
+
+
+
+
+
+
 class malloc_alloc {
 public:
     static void *allocate(size_t n)
@@ -168,7 +191,6 @@ char *default_alloc::S_chunk_alloc(size_t size, int &nobjs) {
     }
 }
 
-
 void* default_alloc::S_refill(size_t n)
 {
     int nobjs = 20;
@@ -183,10 +205,12 @@ void* default_alloc::S_refill(size_t n)
 
     result = (Obj*)chunk;
     *my_free_list = next_obj = (Obj*)(chunk + n);
+    result = (Obj*)chunk;
+    *my_free_list = next_obj = (Obj*)(chunk + n);
     for(i = 1; ;i++)
     {
-        result = (Obj*)chunk;
-        *my_free_list = next_obj = (Obj*)(chunk + n);
+        current_Obj = next_obj;
+        next_obj = (Obj*)((char*)next_obj + n);
         if(nobjs - 1 == i)
         {
             current_Obj->M_free_list_link = 0;
@@ -237,7 +261,6 @@ public:
     pointer address(reference x) const {    return &x;  }
     const_pointer address(const_reference x) const {    return &x;  }
 
-    //TODO: 这里的const void* = 0 好像也没用啊
     pointer allocate(size_type n, const void* = 0){
         return n != 0 ? static_cast<pointer>(Alloc::allocate(n * sizeof(Tp))) : 0;
     }
@@ -269,35 +292,38 @@ public:
     };
 };
 
+template <class T1, class T2>
+inline bool operator==(const allocator<T1>&, const allocator<T2>& )
+{
+    return true;
+}
+
+template <class T1, class T2>
+inline bool operator!=(const allocator<T1>&, const allocator<T2>& )
+{
+    return false;
+}
+
+
 
 template <class Tp, class Allocator>
-struct Alloc_traits{
-    static const bool S_instalceless = false;
+struct Alloc_traits
+{
+    static const bool S_instanceless = false;
+    typedef typename Allocator::template rebind<Tp>::other allocator_type;
 };
 
-template <class Tp>
-struct Alloc_traits<Tp, malloc_alloc>
+template <class Tp, class Allocator>
+const bool Alloc_traits<Tp, Allocator>::S_instanceless;
+
+// default allocator
+template <class Tp, class Tp1>
+struct Alloc_traits<Tp, allocator<Tp1> >
 {
     static const bool S_instanceless = true;
-    typedef malloc_alloc allocator_type;
+    typedef simple_alloc<Tp, alloc> Alloc_type;
+    typedef allocator<Tp> allocator_type;
 };
-
-template <class Tp>
-struct Alloc_traits<Tp, default_alloc>
-{
-    static const bool S_instanceless = true;
-    typedef default_alloc allocator_type;
-};
-
-
-
-
-
-
-
-
-
-
 
 
 }

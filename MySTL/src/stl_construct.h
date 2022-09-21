@@ -67,8 +67,6 @@ inline void _Destroy(ForwardIterator first, ForwardIterator last)
     __destroy(first, last, VALUE_TYPE(first));
 }
 
-//TODO: 这里的Destroy函数什么都没做，那收回内存的步骤是什么时候进行的呢？
-// 先destroy再回收内存么？
 inline void _Destroy(char*, char*) {}
 inline void _Destroy(int*, int*) {}
 inline void _Destroy(long*, long*) {}

@@ -13,58 +13,58 @@
 #include "gtest/gtest.h"
 using namespace std;
 
-class Base
+template <typename T1> class base
 {
 public:
+    T1 a;
+};
+// 普通类
+class base00
+{
+public:
+    int e;
+};
 
+// 2.Base和Derived类都为template类：derive类可不用typename T
+template <typename T>
+class derive:public base<T> //  当base作为一个模板类，需要向base传入参数类型，写法就是base<T>,而这个T又是由derive类传入的T作为参数
+{
+public:
+    T b;
+};
+
+// 3.Base类为特定的template类
+class derive2:public base<int> //  当base作为一个模板类，向base传入类型int
+{
+public:
+    int c;
+};
+
+// 4.Derived类为template类
+template <typename T>
+class derive3 :public base00
+{
+public:
+    T d;
+};
+
+
+
+
+class A
+{
 protected:
-    int a;
+    int m_val;
 };
 
-class Derive : public Base
-{
+class PA : public A {
 public:
-
-    void set_a(int val) { a = val; }
-};
-
-class Derive2 : public Derive
-{
-public:
-    void reset_a(int val) { a = val; }
+    void setVal(int val) {m_val = val;}
 };
 
 int main()
 {
-    ptrdiff_t a;
-    std::queue<int> q;
-    std::deque<int> d;
-    cout << "Hello!" <<endl;
-    std::vector<int> v1 = {1,2,3,7};
-    std::vector<int> v2 = {2,3, 4, 5};
-
-    std::vector<int> res(v1.size() + v2.size());
-    std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), res.begin());
-
-
-    for(auto iter : res)
-        cout << iter << " ";
-    cout << endl;
-
-
-    Derive2 test;
-    test.reset_a(10);
-
-
-    std::vector<int> v;
-    std::generate_n(
-            std::back_insert_iterator<std::vector<int>>(v), // C++17: std::back_insert_iterator(v)
-            10, [n=0]() mutable { return ++n; }             // or use std::back_inserter helper
-    );
-
-    for (int n : v)
-        std::cout << n << ' ';
-    std::cout << '\n';
-
-    return 0;
+    PA pa;
+    pa.setVal(1);
 }
+

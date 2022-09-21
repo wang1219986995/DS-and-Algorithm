@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "test.exe"
+			"path" : "test_stl_iterator.exe"
 		},
 		{
-			"path" : "test.pdb"
+			"path" : "test_stl_iterator.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -30,7 +30,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 20,
+				"line" : 23,
 				"parent" : 0
 			},
 			{
@@ -42,7 +42,7 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 22,
+				"line" : 24,
 				"parent" : 0
 			},
 			{
@@ -91,7 +91,7 @@
 			]
 		}
 	],
-	"id" : "test::@6890427a1f51a3e7e1df",
+	"id" : "test_stl_iterator::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -121,8 +121,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "test",
-	"nameOnDisk" : "test.exe",
+	"name" : "test_stl_iterator",
+	"nameOnDisk" : "test_stl_iterator.exe",
 	"paths" : 
 	{
 		"build" : ".",

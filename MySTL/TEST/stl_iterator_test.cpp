@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <vector>
 #include <list>
+#include <deque>
 #include "gtest/gtest.h"
 #include "src/stl_iterator.h"
 using namespace std;
@@ -120,11 +121,46 @@ TEST(front_insert_iterator, All)
         v.push_front(i - 10);
     }
     EXPECT_TRUE(std::equal(v.begin(), v.end(), test.begin()));
-
-    // EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::output_iterator_tag");
+    EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::output_iterator_tag");
 }
 
+TEST(insert_iterator, All)
+{
+    vector<int> v = {1,2,5,6,7,8};
+    vector<int> test(v);
+    MySTL::insert_iterator<std::vector<int>> iter(test, test.begin() + 2);
+    v.insert(v.begin() + 2, {3,4});
+    for(int i = 3; i < 5; ++i)
+        *iter = i;
+    EXPECT_TRUE(std::equal(v.begin(), v.end(), test.begin()));
 
+    v.insert(v.begin() + 5, 10);
+    MySTL::inserter(test, test.begin() + 5) = 10;
+
+    EXPECT_TRUE(std::equal(v.begin(), v.end(), test.begin()));
+    EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::output_iterator_tag");
+}
+
+TEST(reverse_bidirectional_iterator, All)
+{
+    //TODO 这个没理解怎么用
+}
+
+TEST(reverse_iterator, All)
+{
+    std::vector<int> v = {1,2,3, 4, 5};
+    MySTL::reverse_iterator iter(v.end());
+
+    EXPECT_EQ(iter.base(), v.end());
+    EXPECT_EQ(*iter, *(v.end() - 1));
+    EXPECT_EQ(*v.begin(), *(iter + v.size() - 1));
+
+
+    EXPECT_TRUE(std::equal(v.rbegin(), v.rend(), iter));
+
+    //TODO: category 待定
+    // EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::random_access_iterator_tag");
+}
 
 int main(int argc, char **argv)
 {
@@ -136,3 +172,9 @@ int main(int argc, char **argv)
     cin.get();
     return 0;
 }
+
+
+
+
+
+

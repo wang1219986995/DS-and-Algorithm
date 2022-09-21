@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "main.exe"
+			"path" : "test_stl_alloc.exe"
 		},
 		{
-			"path" : "main.pdb"
+			"path" : "test_stl_alloc.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -15,6 +15,7 @@
 		[
 			"add_executable",
 			"link_directories",
+			"target_link_libraries",
 			"include_directories"
 		],
 		"files" : 
@@ -29,7 +30,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 18,
+				"line" : 26,
 				"parent" : 0
 			},
 			{
@@ -40,6 +41,12 @@
 			},
 			{
 				"command" : 2,
+				"file" : 0,
+				"line" : 27,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
 				"file" : 0,
 				"line" : 6,
 				"parent" : 0
@@ -61,11 +68,11 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 3,
+					"backtrace" : 4,
 					"path" : "E:/LearningMaterials/Data Structure and Algorithm/MySTL"
 				},
 				{
-					"backtrace" : 3,
+					"backtrace" : 4,
 					"path" : "E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
 				}
 			],
@@ -84,7 +91,7 @@
 			]
 		}
 	],
-	"id" : "main::@6890427a1f51a3e7e1df",
+	"id" : "test_stl_alloc::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -103,14 +110,19 @@
 				"role" : "libraryPath"
 			},
 			{
+				"backtrace" : 3,
+				"fragment" : "-lgtest",
+				"role" : "libraries"
+			},
+			{
 				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
 				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
-	"name" : "main",
-	"nameOnDisk" : "main.exe",
+	"name" : "test_stl_alloc",
+	"nameOnDisk" : "test_stl_alloc.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -131,7 +143,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "main.cpp",
+			"path" : "TEST/stl_alloc_test.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

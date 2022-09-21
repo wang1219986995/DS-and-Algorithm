@@ -12,13 +12,19 @@ link_directories(
         ${PROJECT_SOURCE_DIR}/TEST/lib/
 )
 
-add_executable(vector_and_list vector_and_list_test.cpp)
-add_executable(stack_and_queue stack_and_queue.cpp)
-add_executable(my_heap my_heap.cpp)
+
 add_executable(main main.cpp)
 add_executable(sort sort_algorithm.cpp)
-add_executable(test TEST/stl_iterator_test.cpp)
 
-target_link_libraries(test
-        gtest
-)
+
+
+
+
+add_executable(test_stl_iterator TEST/stl_iterator_test.cpp)
+target_link_libraries(test_stl_iterator gtest)
+
+add_executable(test_stl_alloc TEST/stl_alloc_test.cpp)
+target_link_libraries(test_stl_alloc gtest)
+
+add_executable(test_stl_vector TEST/stl_vector_test.cpp)
+target_link_libraries(test_stl_vector gtest)
