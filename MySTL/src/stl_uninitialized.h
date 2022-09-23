@@ -9,13 +9,12 @@
 #include "type_traits.h"
 #include "stl_construct.h"
 #include "stl_pair.h"
+
+
 //TODO: 这里用了一些标准库的东西
 #include <algorithm>
 
 namespace MySTL{
-
-
-
 
 template <class InputIter, class ForwardIter>
 inline ForwardIter __uninitialized_copy_aux(InputIter first, InputIter last,
@@ -30,12 +29,12 @@ inline ForwardIter __uninitialized_copy_aux(InputIter first, InputIter last,
 {
     ForwardIter cur = result;
     try{
-        for(; first != last; ++last)
+        for(; first != last; ++first, ++cur)
             _Construct(&*cur, *first);
         return cur;
     }
     catch(...){
-        _Destroy(result, cur);
+        std::_Destroy(result, cur);
         throw;
     }
 }
@@ -67,6 +66,9 @@ inline wchar_t* uninitialized_copy(const wchar_t* first, const wchar_t* last, wc
     return result + (last - first);
 }
 
+
+
+
 // uninitialized_copy_n
 template <class InputIter, class Size, class ForwardIter>
 pair<InputIter, ForwardIter>
@@ -79,7 +81,7 @@ __uninitialized_copy_n(InputIter first, Size count, ForwardIter result, input_it
     }
     catch (...)
     {
-        _Destroy(result, cur);
+        std::_Destroy(result, cur);
         throw;
     }
 }
@@ -88,6 +90,7 @@ template <class RandomAccessIter, class Size, class ForwardIter>
 pair<RandomAccessIter, ForwardIter>
 __uninitialized_copy_n(RandomAccessIter first, Size count, ForwardIter result, random_access_iterator_tag)
 {
+    std::cout << __func__ << std::endl;
     RandomAccessIter last = first + count;
     return pair<RandomAccessIter, ForwardIter>
             (last,uninitialized_copy(first, last, result));
@@ -109,6 +112,9 @@ inline pair<InputIter, ForwaredIter>
 
 
 
+
+
+
 // uninitialized_fill
 template <class ForwardIter, class Tp>
 inline void __uninitialized_fill_aux(ForwardIter first, ForwardIter last, const Tp& x, __true_type)
@@ -127,7 +133,7 @@ inline void __uninitialized_fill_aux(ForwardIter first, ForwardIter last, const 
     }
     catch (...)
     {
-        _Destroy(first, cur);
+        __Destroy(first, cur);
         throw ;
     }
 }
@@ -146,6 +152,9 @@ inline void uninitialized_fill(ForwardIter first, ForwardIter last, const Tp& x)
 }
 
 
+
+
+
 // uninitialized_fill_n
 template <class ForwardIter, class Size, class Tp>
 inline ForwardIter __uninitialized_fill_n_aux(ForwardIter first, Size n, const Tp& x, __true_type)
@@ -160,30 +169,31 @@ inline ForwardIter __uninitialized_fill_n_aux(ForwardIter first, Size n, const T
 {
     ForwardIter cur = first;
     try {
-        for(; n > 0; --n, ++first)
+        for(; n > 0; --n, ++cur)
             _Construct(&*cur, x);
         return cur;
     }
     catch (...)
     {
-        _Destroy(first, cur);
+        __Destroy(first, cur);
         throw ;
     }
 }
 
+
+// other
 template <class ForwardIter, class Size, class Tp>
 inline ForwardIter __uninitialized_fill_n(ForwardIter first, Size n, const Tp& x)
 {
     typedef typename type_traits<Tp>::is_POD_type Is_POD;
-    return __uninitialized_fill_aux(first, n, x, Is_POD());
+    return __uninitialized_fill_n_aux(first, n, x, Is_POD());
 }
 
 template <class ForwardIter, class Size, class Tp>
 inline ForwardIter uninitialized_fill_n(ForwardIter first, Size n, const Tp& x)
 {
-    return __uninitialized_fill(first, n, x);
+    return __uninitialized_fill_n(first, n, x);
 }
-
 
 template <class InputIter1, class InputIter2, class ForwardIter>
 inline ForwardIter __uninitialized_copy_copy(InputIter1 first1, InputIter1 last1,
@@ -230,7 +240,6 @@ inline void __uninitialized_copy_fill(InputIter first1, InputIter last1,
         _Destroy(first2, mid2);
     }
 }
-
 
 
 

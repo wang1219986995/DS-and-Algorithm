@@ -28,3 +28,9 @@ target_link_libraries(test_stl_alloc gtest)
 
 add_executable(test_stl_vector TEST/stl_vector_test.cpp)
 target_link_libraries(test_stl_vector gtest)
+
+add_executable(test_stl_uninitialized TEST/stl_uninitialized_test.cpp)
+target_link_libraries(test_stl_uninitialized gtest)
+
+add_executable(test_stl_construct TEST/stl_construct_test.cpp)
+target_link_libraries(test_stl_construct gtest)

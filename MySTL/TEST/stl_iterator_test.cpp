@@ -9,7 +9,7 @@
 #include <deque>
 #include "gtest/gtest.h"
 #include "src/stl_iterator.h"
-using namespace std;
+//using namespace std;
 
 #define TYPE_SIMPLIFIED(type) \
     abi::__cxa_demangle(typeid(type).name(), NULL, NULL, NULL)
@@ -83,8 +83,8 @@ TEST(value_type, All)
 // stl_iterator.h test
 TEST(back_insert_iterator, All)
 {
-    vector<int> v;
-    vector<int> test;
+    std::vector<int> v;
+    std::vector<int> test;
     MySTL::back_insert_iterator<std::vector<int>> iter(test);
     for(int i = 0; i < 10; ++i)
         v.push_back(i), *iter = i;
@@ -126,8 +126,8 @@ TEST(front_insert_iterator, All)
 
 TEST(insert_iterator, All)
 {
-    vector<int> v = {1,2,5,6,7,8};
-    vector<int> test(v);
+    std::vector<int> v = {1,2,5,6,7,8};
+    std::vector<int> test(v);
     MySTL::insert_iterator<std::vector<int>> iter(test, test.begin() + 2);
     v.insert(v.begin() + 2, {3,4});
     for(int i = 3; i < 5; ++i)
@@ -168,8 +168,8 @@ int main(int argc, char **argv)
 
     RUN_ALL_TESTS();
 
-    cout << "Press enter to exit..." << endl;
-    cin.get();
+    std::cout << "Press enter to exit..." << std::endl;
+    std::cin.get();
     return 0;
 }
 

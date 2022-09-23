@@ -9,9 +9,8 @@
 #include "type_traits.h"
 #include "stl_alloc.h"
 #include "stl_iterator.h"
-namespace MySTL{
 
-// Construct
+namespace MySTL{
 template <class T1, class T2>
 inline void _Construct(T1* p, const T2& value)
 {
@@ -24,24 +23,17 @@ inline void _Construct(T1* p)
     new ((void*) p) T1();
 }
 
-template <class T1, class T2>
-inline void construct(T1* p, const T2& value)
-{
-    _Construct(p, value);
-}
 
 template <class Tp>
-inline void construct(Tp* p)
-{
-    _Construct(p);
-}
-
-
-// Destroy
-template <class Tp>
-inline void _Destroy(Tp* pointer)
+inline void __Destroy(Tp* pointer)
 {
     pointer->~Tp();
+}
+
+template <class Tp>
+inline void destroy(Tp* pointer)
+{
+    __Destroy(pointer);
 }
 
 template <class ForwardIterator>
@@ -62,28 +54,36 @@ inline void __destroy(ForwardIterator first, ForwardIterator last, Tp*)
 }
 
 template <class ForwardIterator>
-inline void _Destroy(ForwardIterator first, ForwardIterator last)
+inline void __Destroy(ForwardIterator first, ForwardIterator last)
 {
     __destroy(first, last, VALUE_TYPE(first));
 }
 
-inline void _Destroy(char*, char*) {}
-inline void _Destroy(int*, int*) {}
-inline void _Destroy(long*, long*) {}
-inline void _Destroy(float*, float*) {}
-inline void _Destroy(double*, double*) {}
-inline void _Destroy(wchar_t*, wchar_t*) {}
+inline void __Destroy(char*, char*) {}
+inline void __Destroy(int*, int*) {}
+inline void __Destroy(long*, long*) {}
+inline void __Destroy(float*, float*) {}
+inline void __Destroy(double*, double*) {}
+inline void __Destroy(wchar_t*, wchar_t*) {}
+
+template <class T1, class T2>
+inline void construct(T1* p, const T2& value)
+{
+    _Construct(p, value);
+}
 
 template <class Tp>
-inline void destroy(Tp* pointer)
+inline void construct(Tp* p)
 {
-    _Destroy(pointer);
+    _Construct(p);
 }
+
+
 
 template <class ForwardIterator>
 inline void destroy(ForwardIterator first, ForwardIterator last)
 {
-    _Destroy(first, last);
+    __Destroy(first, last);
 }
 
 

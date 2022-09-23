@@ -159,8 +159,6 @@ void quick_sort(vector<Tp>& numbers, Compare comp)
 }
 
 
-
-
 // heap sort
 
 

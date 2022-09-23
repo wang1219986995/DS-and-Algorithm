@@ -3,5 +3,7 @@ E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeF
 E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/test_stl_iterator.dir
 E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/test_stl_alloc.dir
 E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/test_stl_vector.dir
+E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/test_stl_uninitialized.dir
+E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/test_stl_construct.dir
 E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/edit_cache.dir
 E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug/CMakeFiles/rebuild_cache.dir
