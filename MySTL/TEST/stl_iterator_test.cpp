@@ -14,15 +14,8 @@
 #define TYPE_SIMPLIFIED(type) \
     abi::__cxa_demangle(typeid(type).name(), NULL, NULL, NULL)
 
-//TODO: 未完待续，后续需整理
-// 为什么value_type 要返回 Tp* ?
-
-
-
-// stl_iterator_base.h test
 TEST(iterator_category, ALL)
 {
-
     EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(MySTL::input_iterator<int, int64_t>())),
                     "MySTL::input_iterator_tag");
 
@@ -38,7 +31,6 @@ TEST(iterator_category, ALL)
     EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(MySTL::random_access_iterator<int, int64_t>())),
                  "MySTL::random_access_iterator_tag");
 
-
     int number = 10;
     const int number2 = 20;
     int* p = &number;
@@ -48,10 +40,11 @@ TEST(iterator_category, ALL)
     EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(p2)), "MySTL::random_access_iterator_tag");
 }
 
+
 TEST(distance_type, All)
 {
-    //TODO: Tp 类型的distance怎么实例化，怎么测？
-
+    MySTL::bidirectional_iterator<int, ptrdiff_t> iter;
+    EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::distance_type(iter)), "long long*");
 
     ptrdiff_t a;
     int number = 10;
@@ -143,7 +136,8 @@ TEST(insert_iterator, All)
 
 TEST(reverse_bidirectional_iterator, All)
 {
-    //TODO 这个没理解怎么用
+    // MySTL::reverse_bidirectional_iterator<std::vector<int> > reverse_iter;
+    //TODO: 需配合其他迭代器测试
 }
 
 TEST(reverse_iterator, All)
@@ -160,7 +154,10 @@ TEST(reverse_iterator, All)
 
     //TODO: category 待定
     // EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::random_access_iterator_tag");
+    //TODO: 需配合其他迭代器测试
 }
+
+
 
 int main(int argc, char **argv)
 {

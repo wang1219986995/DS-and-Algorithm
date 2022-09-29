@@ -285,6 +285,41 @@ build test_stl_construct.exe: CXX_EXECUTABLE_LINKER__test_stl_construct_Debug CM
   TARGET_IMPLIB = libtest_stl_construct.dll.a
   TARGET_PDB = test_stl_construct.exe.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_stl_deque
+
+
+#############################################
+# Order-only phony target for test_stl_deque
+
+build cmake_object_order_depends_target_test_stl_deque: phony || CMakeFiles/test_stl_deque.dir
+
+build CMakeFiles/test_stl_deque.dir/TEST/stl_deque_test.cpp.obj: CXX_COMPILER__test_stl_deque_Debug E$:/LearningMaterials/Data$ Structure$ and$ Algorithm/MySTL/TEST/stl_deque_test.cpp || cmake_object_order_depends_target_test_stl_deque
+  DEP_FILE = CMakeFiles\test_stl_deque.dir\TEST\stl_deque_test.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  INCLUDES = -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL" -I"E:/LearningMaterials/Data Structure and Algorithm/MySTL/TEST/include"
+  OBJECT_DIR = CMakeFiles\test_stl_deque.dir
+  OBJECT_FILE_DIR = CMakeFiles\test_stl_deque.dir\TEST
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_stl_deque
+
+
+#############################################
+# Link the executable test_stl_deque.exe
+
+build test_stl_deque.exe: CXX_EXECUTABLE_LINKER__test_stl_deque_Debug CMakeFiles/test_stl_deque.dir/TEST/stl_deque_test.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lgtest  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_PATH = -LE:/LEARNI~1/DATAST~1/MySTL/TEST/lib
+  OBJECT_DIR = CMakeFiles\test_stl_deque.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = test_stl_deque.exe
+  TARGET_IMPLIB = libtest_stl_deque.dll.a
+  TARGET_PDB = test_stl_deque.exe.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -319,6 +354,8 @@ build test_stl_alloc: phony test_stl_alloc.exe
 
 build test_stl_construct: phony test_stl_construct.exe
 
+build test_stl_deque: phony test_stl_deque.exe
+
 build test_stl_iterator: phony test_stl_iterator.exe
 
 build test_stl_uninitialized: phony test_stl_uninitialized.exe
@@ -333,7 +370,7 @@ build test_stl_vector: phony test_stl_vector.exe
 #############################################
 # Folder: E:/LearningMaterials/Data Structure and Algorithm/MySTL/cmake-build-debug
 
-build all: phony main.exe sort.exe test_stl_iterator.exe test_stl_alloc.exe test_stl_vector.exe test_stl_uninitialized.exe test_stl_construct.exe
+build all: phony main.exe sort.exe test_stl_iterator.exe test_stl_alloc.exe test_stl_vector.exe test_stl_uninitialized.exe test_stl_construct.exe test_stl_deque.exe
 
 # =============================================================================
 # Built-in targets

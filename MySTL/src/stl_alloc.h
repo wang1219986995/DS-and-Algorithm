@@ -31,6 +31,8 @@ public:
     static void deallocate(Tp* p)
     { Alloc::deallocate(p, sizeof(Tp)); }
 
+private:
+    FRIEND_TEST(simple_alloc, All);
 };
 
 
@@ -71,6 +73,10 @@ enum { NFREELISTS = 16}; // _MAX_BYTES/_ALIGN
 
 class default_alloc
 {
+private:
+    FRIEND_TEST(default_alloc, private);
+    FRIEND_TEST(default_alloc, public);
+
 private:
     static size_t S_round_up(size_t bytes)
     {return (bytes + (size_t)ALIGN-1) & ~((size_t)ALIGN-1);}
@@ -205,8 +211,6 @@ void* default_alloc::S_refill(size_t n)
 
     result = (Obj*)chunk;
     *my_free_list = next_obj = (Obj*)(chunk + n);
-    result = (Obj*)chunk;
-    *my_free_list = next_obj = (Obj*)(chunk + n);
     for(i = 1; ;i++)
     {
         current_Obj = next_obj;
@@ -235,6 +239,13 @@ void* default_alloc::reallocate(void *p, size_t old_sz, size_t new_sz)
     deallocate(p, old_sz);
     return result;
 }
+
+
+
+
+
+
+
 
 template <class Tp>
 class allocator{

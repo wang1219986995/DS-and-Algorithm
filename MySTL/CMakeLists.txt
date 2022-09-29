@@ -34,3 +34,6 @@ target_link_libraries(test_stl_uninitialized gtest)
 
 add_executable(test_stl_construct TEST/stl_construct_test.cpp)
 target_link_libraries(test_stl_construct gtest)
+
+add_executable(test_stl_deque TEST/stl_deque_test.cpp)
+target_link_libraries(test_stl_deque gtest)

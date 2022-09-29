@@ -15,11 +15,43 @@
 using namespace std;
 
 
-
+bool isIPV4(string str)
+{
+    if(str.size() < 7) return false;
+    int start = 0;
+    int count = 0;
+    for(int i = 0; i < str.size(); ++i)
+    {
+        if(str[i] == '.')
+        {
+            string tmp = str.substr(start, i - start);
+            int value = std::atoi(tmp.c_str());
+            if(value < 1 || value > 255) return false;
+            if(++count > 3) return false;
+            start = i + 1;
+        }
+    }
+    string tmp = str.substr(start, str.size());
+    int value = std::atoi(tmp.c_str());
+    if(value < 1 || value > 255) return false;
+    return true;
+}
 
 
 int main()
 {
-    char* a = "123";
+    cout << isIPV4("1.1.1.1") << endl;
+    cout << isIPV4("111.12.78.1000") << endl;
+    cout << isIPV4("1.1.1.1.2.23.4") << endl;
+    cout << isIPV4("1.1.1.1") << endl;
+    cout << isIPV4("1.1.1.1") << endl;
+
+
+    string test = "123";
+    cout << test.size() << " " << test.length() << endl;
+
+    std::vector<std::string> v = {"123", "234"};
+    std::destroy(v.begin(), v.end());
+
 }
 

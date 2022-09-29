@@ -34,7 +34,7 @@ inline ForwardIter __uninitialized_copy_aux(InputIter first, InputIter last,
         return cur;
     }
     catch(...){
-        std::_Destroy(result, cur);
+        __Destroy(result, cur);
         throw;
     }
 }
@@ -81,7 +81,7 @@ __uninitialized_copy_n(InputIter first, Size count, ForwardIter result, input_it
     }
     catch (...)
     {
-        std::_Destroy(result, cur);
+        __Destroy(result, cur);
         throw;
     }
 }
@@ -90,7 +90,6 @@ template <class RandomAccessIter, class Size, class ForwardIter>
 pair<RandomAccessIter, ForwardIter>
 __uninitialized_copy_n(RandomAccessIter first, Size count, ForwardIter result, random_access_iterator_tag)
 {
-    std::cout << __func__ << std::endl;
     RandomAccessIter last = first + count;
     return pair<RandomAccessIter, ForwardIter>
             (last,uninitialized_copy(first, last, result));

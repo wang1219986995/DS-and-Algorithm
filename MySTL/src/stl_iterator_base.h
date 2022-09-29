@@ -98,7 +98,7 @@ inline typename iterator_traits<Iter>::iterator_category __iterator_category(con
 
 template <class Iter>
 inline typename iterator_traits<Iter>::iterator_category iterator_category(const Iter& i)
-{ return __iterator_category(i); }
+{ return MySTL::__iterator_category(i); }
 
 template <class Iter>
 inline typename iterator_traits<Iter>::difference_type* __distance_type(const Iter&)

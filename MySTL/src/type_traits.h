@@ -158,112 +158,64 @@ struct type_traits<_Tp*> {
 };
 
 
-template<> struct type_traits<char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
+
+
+
+template <class Tp> struct Is_integer {
+    typedef __false_type Integral;
 };
 
-template<> struct type_traits<signed char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
+template<> struct Is_integer<bool> {
+    typedef __true_type Integral;
 };
 
-template<> struct type_traits<unsigned char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
+template<> struct Is_integer<char> {
+    typedef __true_type Integral;
 };
 
-template<> struct type_traits<const char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
+template<> struct Is_integer<signed char> {
+    typedef __true_type Integral;
 };
 
-template<> struct type_traits<const signed char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
-};
-
-template<> struct type_traits<const unsigned char*> {
-   typedef __true_type    has_trivial_default_constructor;
-   typedef __true_type    has_trivial_copy_constructor;
-   typedef __true_type    has_trivial_assignment_operator;
-   typedef __true_type    has_trivial_destructor;
-   typedef __true_type    is_POD_type;
+template<> struct Is_integer<unsigned char> {
+    typedef __true_type Integral;
 };
 
 
-
-
-template <class Tp> struct _Is_integer {
-    typedef __false_type _Integral;
+template<> struct Is_integer<wchar_t> {
+  typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<bool> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<short> {
+    typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<char> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<unsigned short> {
+    typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<signed char> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<int> {
+    typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<unsigned char> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<unsigned int> {
+    typedef __true_type Integral;
 };
 
-
-template<> struct _Is_integer<wchar_t> {
-  typedef __true_type _Integral;
+template<> struct Is_integer<long> {
+    typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<short> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<unsigned long> {
+    typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<unsigned short> {
-    typedef __true_type _Integral;
+template<> struct Is_integer<long long> {
+  typedef __true_type Integral;
 };
 
-template<> struct _Is_integer<int> {
-    typedef __true_type _Integral;
-};
-
-template<> struct _Is_integer<unsigned int> {
-    typedef __true_type _Integral;
-};
-
-template<> struct _Is_integer<long> {
-    typedef __true_type _Integral;
-};
-
-template<> struct _Is_integer<unsigned long> {
-    typedef __true_type _Integral;
-};
-
-template<> struct _Is_integer<long long> {
-  typedef __true_type _Integral;
-};
-
-template<> struct _Is_integer<unsigned long long> {
-  typedef __true_type _Integral;
+template<> struct Is_integer<unsigned long long> {
+  typedef __true_type Integral;
 };
 
 }

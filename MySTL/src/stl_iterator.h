@@ -228,8 +228,8 @@ public:
     typedef typename iterator_traits<Iterator>::pointer             pointer;
     typedef typename iterator_traits<Iterator>::reference           reference;
 
-    typedef Iterator iterator_type;
-    typedef reverse_iterator<Iterator> Self;
+    typedef Iterator                        iterator_type;
+    typedef reverse_iterator<Iterator>      Self;
 
 public:
     reverse_iterator() {}
@@ -296,6 +296,64 @@ public:
 
     reference operator[](difference_type n) const { return *(*this + n); }
 };
+
+template <class Iterator>
+inline bool operator==(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return x.base() == y.base();
+}
+
+
+template <class Iterator>
+inline bool operator<(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return x.base() < y.base();
+}
+
+
+template <class Iterator>
+inline bool operator!=(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return !(x == y);
+}
+
+
+template <class Iterator>
+inline bool operator>(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return y < x;
+}
+
+template <class Iterator>
+inline bool operator<=(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return !(y < x);
+}
+
+
+template <class Iterator>
+inline bool operator>=(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return !(x < y);
+}
+
+template <class Iterator>
+inline typename reverse_iterator<Iterator>::difference_type
+operator-(const reverse_iterator<Iterator>& x, const reverse_iterator<Iterator>& y)
+{
+    return y.base() - x.base();
+}
+
+template <class Iterator>
+inline reverse_iterator<Iterator>
+operator+(typename reverse_iterator<Iterator>::difference_type n,
+          const reverse_iterator<Iterator>& x)
+{
+    return reverse_iterator<Iterator>(x.base() -n );
+}
+
+
+
 
 //TODO:  iostream iterator
 
