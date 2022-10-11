@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/9/21.
-//
 #include <iostream>
 #include <cxxabi.h>
 #include <stddef.h>

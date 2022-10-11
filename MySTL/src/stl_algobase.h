@@ -1,5 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/31.
 //
 
 #ifndef MYSTL_STL_ALGOBASE_H

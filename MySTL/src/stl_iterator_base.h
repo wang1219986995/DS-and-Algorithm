@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/15.
-//
 
 #ifndef MYSTL_STL_ITERATOR_BASE_H
 #define MYSTL_STL_ITERATOR_BASE_H
@@ -73,7 +71,7 @@ struct iterator_traits {
 };
 template <class _Tp>
 struct iterator_traits<_Tp*> {
-    typedef random_access_iterator_tag iterator_category;
+    typedef MySTL::random_access_iterator_tag iterator_category;
     typedef _Tp                         value_type;
     typedef ptrdiff_t                   difference_type;
     typedef _Tp*                        pointer;
@@ -82,17 +80,22 @@ struct iterator_traits<_Tp*> {
 
 template <class _Tp>
 struct iterator_traits<const _Tp*> {
-    typedef random_access_iterator_tag iterator_category;
+    typedef MySTL::random_access_iterator_tag iterator_category;
     typedef _Tp                         value_type;
     typedef ptrdiff_t                   difference_type;
     typedef const _Tp*                  pointer;
     typedef const _Tp&                  reference;
 };
 
+
+
+// 这里因为前面定义了 template<class Iterator> struct iterator_traits 类型，
+// 直接使用 std 的迭代器时会返回 std:: 的 forward ， random等类型的iterator category
+// 故MySTL 中涉及迭代器的接口不能直接使用std的迭代器
 template <class Iter>
 inline typename iterator_traits<Iter>::iterator_category __iterator_category(const Iter&)
 {
-    typedef typename iterator_traits<Iter>::iterator_category Category;
+    typedef typename MySTL::iterator_traits<Iter>::iterator_category Category;
     return Category();
 }
 

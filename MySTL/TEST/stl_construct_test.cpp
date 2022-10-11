@@ -1,5 +1,4 @@
 //
-// Created by GW00243464 on 2022/9/22.
 
 #include "gtest/gtest.h"
 #include "src/stl_construct.h"

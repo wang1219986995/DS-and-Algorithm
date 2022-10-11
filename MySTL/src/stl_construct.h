@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/15.
-//
 
 #ifndef MYSTL_STL_CONSTRUCT_H
 #define MYSTL_STL_CONSTRUCT_H
@@ -40,7 +38,7 @@ template <class ForwardIterator>
 void __destroy_aux(ForwardIterator first, ForwardIterator last, __false_type)
 {
     for(; first != last; ++first)
-        destroy(&*first);
+        MySTL::destroy(&*first);
 }
 
 template <class ForwardIterator>

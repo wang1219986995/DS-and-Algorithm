@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/15.
-//
 
 #ifndef MYSTL_TYPE_TRAITS_H
 #define MYSTL_TYPE_TRAITS_H

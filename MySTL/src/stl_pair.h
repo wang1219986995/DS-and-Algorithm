@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/16.
-//
 
 #ifndef MYSTL_STL_PAIR_H
 #define MYSTL_STL_PAIR_H

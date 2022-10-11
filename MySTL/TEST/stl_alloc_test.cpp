@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/9/19.
-//
 #include <iostream>
 #include <cxxabi.h>
 #include <stddef.h>
@@ -78,6 +76,7 @@ TEST(default_alloc, public)
     EXPECT_EQ(1, *tmp);
 
 }
+
 } // namespace
 
 int main(int argc, char **argv)

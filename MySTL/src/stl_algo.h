@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/9/3.
-//
 
 #ifndef MYSTL_STL_ALGO_H
 #define MYSTL_STL_ALGO_H

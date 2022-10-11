@@ -1,6 +1,4 @@
 //
-// Created by WangJuncheng on 2022/8/14.
-//
 
 #ifndef MYSTL_ALLOC_H
 #define MYSTL_ALLOC_H
@@ -11,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "gtest/gtest.h"
 
 
 namespace MySTL{

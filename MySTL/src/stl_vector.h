@@ -1,6 +1,4 @@
 //
-// Created by GW00243464 on 2022/8/19.
-//
 
 #ifndef MYSTL_STL_VECTOR_H
 #define MYSTL_STL_VECTOR_H
