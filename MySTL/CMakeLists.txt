@@ -37,3 +37,6 @@ target_link_libraries(test_stl_construct gtest)
 
 add_executable(test_stl_deque TEST/stl_deque_test.cpp)
 target_link_libraries(test_stl_deque gtest)
+
+add_executable(test_stl_algo TEST/stl_algo_test.cpp)
+target_link_libraries(test_stl_algo gtest)

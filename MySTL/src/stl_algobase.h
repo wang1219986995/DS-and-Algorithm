@@ -3,11 +3,13 @@
 
 #ifndef MYSTL_STL_ALGOBASE_H
 #define MYSTL_STL_ALGOBASE_H
-#include "stl_iterator.h"
-#include "type_traits.h"
+
 #include <stdio.h>
 #include <string.h>
+#include "stl_iterator.h"
+#include "type_traits.h"
 #include "stl_pair.h"
+
 namespace MySTL
 {
 
@@ -50,7 +52,7 @@ inline const Tp& max(const Tp& a, const Tp& b)
 
 template <class Tp, class Compare>
 inline const Tp& min(const Tp& a, const Tp& b, Compare comp)
-{ return comp(b < a) ? b : a; }
+{ return comp(b, a) ? b : a; }
 
 
 template <class Tp, class Compare>
@@ -65,7 +67,7 @@ inline const Tp& max(const Tp& a, const Tp& b, Compare comp)
 // copy
 
 template <class InputIter, class OutputIter, class Distance>
-inline OutputIter copy(InputIter first, InputIter last, OutputIter result,
+inline OutputIter __copy(InputIter first, InputIter last, OutputIter result,
                          input_iterator_tag, Distance*)
 {
     for(; first != last; ++result, ++first)
@@ -74,7 +76,7 @@ inline OutputIter copy(InputIter first, InputIter last, OutputIter result,
 }
 
 template <class RandomAccessIter, class OutputIter, class Distance>
-inline OutputIter copy(RandomAccessIter first, RandomAccessIter last,
+inline OutputIter __copy(RandomAccessIter first, RandomAccessIter last,
                          OutputIter result, random_access_iterator_tag, Distance*)
 {
     for(Distance n = last - first; n > 0; --n)
@@ -88,35 +90,39 @@ inline OutputIter copy(RandomAccessIter first, RandomAccessIter last,
 
 
 template <class Tp>
-inline Tp* copy_trivial(const Tp* first, const Tp* last, Tp* result)
+inline Tp* __copy_trivial(const Tp* first, const Tp* last, Tp* result)
 {
     memmove(result, first, sizeof(Tp) * (last - first));
     return result + (last - first);
 }
 
 template <class InputIter, class OutputIter, class BoolType>
-struct copy_dispatch{
-        static OutputIter copy(InputIter first, InputIter last, OutputIter result)
-        {
-            typedef typename iterator_traits<InputIter>::iterator_category Category;
-            typedef typename iterator_traits<InputIter>::difference_type Distance;
-            return copy(first, last, result, Category(), (Distance*)0);
-        }
-    };
-
-template <class Tp>
-struct copy_dispatch<Tp*, Tp*, __true_type>
+struct __copy_dispatch
 {
-    static Tp* copy(const Tp* first, const Tp* last, Tp* result)
-    {  return copy_trivial(first, last, result);  }
+    static OutputIter copy(InputIter first, InputIter last, OutputIter result)
+    {
+        typedef typename iterator_traits<InputIter>::iterator_category Category;
+        typedef typename iterator_traits<InputIter>::difference_type Distance;
+        return __copy(first, last, result, Category(), (Distance*) 0);
+    }
 };
 
-
 template <class Tp>
-struct copy_dispatch<const Tp*, Tp*, __true_type>
+struct __copy_dispatch<Tp*, Tp*, __true_type>
 {
     static Tp* copy(const Tp* first, const Tp* last, Tp* result)
-    {  return copy_trivial(first, last, result);  }
+    {
+        return __copy_trivial(first, last, result);
+    }
+};
+
+template <class Tp>
+struct __copy_dispatch<const Tp*, Tp*, __true_type>
+{
+    static Tp* copy(const Tp* first, const Tp* last, Tp* result)
+    {
+        return __copy_trivial(first, last, result);
+    }
 };
 
 template <class InputIter, class OutputIter>
@@ -124,8 +130,9 @@ inline OutputIter copy(InputIter first, InputIter last, OutputIter result)
 {
     typedef typename iterator_traits<InputIter>::value_type Tp;
     typedef typename type_traits<Tp>::has_trivial_assignment_operator Trivial;
-    return copy_dispatch<InputIter, OutputIter, Trivial>::copy(first, last, result);
+    return __copy_dispatch<InputIter, OutputIter, Trivial>::copy(first, last, result);
 }
+
 
 
 
@@ -133,7 +140,7 @@ inline OutputIter copy(InputIter first, InputIter last, OutputIter result)
 
 template <class BidirectionalIter1, class BidirectionalIter2, class Distance>
 inline BidirectionalIter2 copy_backward(BidirectionalIter1 first, BidirectionalIter1 last,
-                                                  BidirectionalIter2 result, bidirectional_iterator_tag, Distance)
+                                                  BidirectionalIter2 result, bidirectional_iterator_tag, Distance*)
 {
     while(first != last)
         *--result = *--last;
@@ -141,9 +148,9 @@ inline BidirectionalIter2 copy_backward(BidirectionalIter1 first, BidirectionalI
 }
 
 
-template <class RandomAccessIter, class BidirectionalIter2, class Distance>
-inline BidirectionalIter2 copy_backward(RandomAccessIter first, RandomAccessIter last,
-                                          BidirectionalIter2 result, random_access_iterator_tag, Distance)
+template <class RandomAccessIter, class BidirectionalIter, class Distance>
+inline BidirectionalIter copy_backward(RandomAccessIter first, RandomAccessIter last,
+                                          BidirectionalIter result, random_access_iterator_tag, Distance*)
 {
     for(Distance n = last - first; n > 0; --n)
         *--result = *--last;
@@ -168,12 +175,11 @@ struct copy_backward_dispatch<Tp*, Tp*, __true_type>
 {
     static Tp* copy(const Tp* first, const Tp* last, Tp* result)
     {
-        const ptrdiff_t distance = last - first;
-        memmove(result - distance, first, sizeof(Tp) * distance);
-        return result - distance;
+        const ptrdiff_t Num = last - first;
+        memmove(result - Num, first, sizeof(Tp) * Num);
+        return result - Num;
     }
 };
-
 
 template <class Tp>
 struct copy_backward_dispatch<const Tp*, Tp*, __true_type>
@@ -216,7 +222,7 @@ inline pair<RandomAccessIter, OutputIter> __copy_n(RandomAccessIter first, Size 
 template <class InputIter, class Size, class OutputIter>
 inline pair<InputIter, OutputIter> __copy_n(InputIter first, Size count, OutputIter result)
 {
-    return copy_n(first, count, result, ITERATOR_CATEGORY(first));
+    return __copy_n(first, count, result, ITERATOR_CATEGORY(first));
 }
 
 template <class InputIter, class Size, class OutputIter>
@@ -226,19 +232,21 @@ inline pair<InputIter, OutputIter> copy_n(InputIter first, Size count, OutputIte
 }
 
 
+
+
 // fill and fill_n
 
-template <class ForwardIter, class _Tp>
-void fill(ForwardIter first, ForwardIter last, const _Tp& __value) {
+template <class ForwardIter, class Tp>
+void fill(ForwardIter first, ForwardIter last, const Tp& value) {
     for ( ; first != last; ++first)
-        *first = __value;
+        *first = value;
 }
 
-template <class OutputIter, class Size, class _Tp>
-OutputIter fill_n(OutputIter first, Size n, const _Tp& __value) 
+template <class OutputIter, class Size, class Tp>
+OutputIter fill_n(OutputIter first, Size n, const Tp& value)
 {
     for ( ; n > 0; --n, ++first)
-        *first = __value;
+        *first = value;
     return first;
 }
 
@@ -284,43 +292,43 @@ inline char* fill_n(char* first, Size n, const char& c)
 
 // equal and mismatch
 
-template <class _InputIter1, class _InputIter2>
-pair<_InputIter1, _InputIter2> mismatch(_InputIter1 __first1,
-                                        _InputIter1 __last1,
-                                        _InputIter2 __first2) {
-    while (__first1 != __last1 && *__first1 == *__first2) {
-        ++__first1;
-        ++__first2;
+template <class InputIter1, class InputIter2>
+pair<InputIter1, InputIter2> mismatch(InputIter1 first1,
+                                        InputIter1 last1,
+                                        InputIter2 first2) {
+    while (first1 != last1 && *first1 == *first2) {
+        ++first1;
+        ++first2;
     }
-    return pair<_InputIter1, _InputIter2>(__first1, __first2);
+    return pair<InputIter1, InputIter2>(first1, first2);
 }
 
-template <class _InputIter1, class _InputIter2, class _BinaryPredicate>
-pair<_InputIter1, _InputIter2> mismatch(_InputIter1 __first1,
-                                        _InputIter1 __last1,
-                                        _InputIter2 __first2,
-                                        _BinaryPredicate __binary_pred) {
-    while (__first1 != __last1 && __binary_pred(*__first1, *__first2)) {
-        ++__first1;
-        ++__first2;
+template <class InputIter1, class InputIter2, class BinaryPredicate>
+pair<InputIter1, InputIter2> mismatch(InputIter1 first1,
+                                        InputIter1 last1,
+                                        InputIter2 first2,
+                                        BinaryPredicate binary_pred) {
+    while (first1 != last1 && binary_pred(*first1, *first2)) {
+        ++first1;
+        ++first2;
     }
-    return pair<_InputIter1, _InputIter2>(__first1, __first2);
+    return pair<InputIter1, InputIter2>(first1, first2);
 }
 
-template <class _InputIter1, class _InputIter2>
-inline bool equal(_InputIter1 __first1, _InputIter1 __last1,
-                  _InputIter2 __first2) {
-    for ( ; __first1 != __last1; ++__first1, ++__first2)
-        if (*__first1 != *__first2)
+template <class InputIter1, class InputIter2>
+inline bool equal(InputIter1 first1, InputIter1 last1,
+                  InputIter2 first2) {
+    for ( ; first1 != last1; ++first1, ++first2)
+        if (*first1 != *first2)
             return false;
     return true;
 }
 
-template <class _InputIter1, class _InputIter2, class _BinaryPredicate>
-inline bool equal(_InputIter1 __first1, _InputIter1 __last1,
-                  _InputIter2 __first2, _BinaryPredicate __binary_pred) {
-    for ( ; __first1 != __last1; ++__first1, ++__first2)
-        if (!__binary_pred(*__first1, *__first2))
+template <class InputIter1, class InputIter2, class BinaryPredicate>
+inline bool equal(InputIter1 first1, InputIter1 last1,
+                  InputIter2 first2, BinaryPredicate binary_pred) {
+    for ( ; first1 != last1; ++first1, ++first2)
+        if (!binary_pred(*first1, *first2))
             return false;
     return true;
 }
@@ -329,103 +337,102 @@ inline bool equal(_InputIter1 __first1, _InputIter1 __last1,
 // lexicographical_compare and lexicographical_compare_3way.
 // (the latter is not part of the C++ standard.)
 
-template <class _InputIter1, class _InputIter2>
-bool lexicographical_compare(_InputIter1 __first1, _InputIter1 __last1,
-                             _InputIter2 __first2, _InputIter2 __last2) {
-    for ( ; __first1 != __last1 && __first2 != __last2
-            ; ++__first1, ++__first2) {
-        if (*__first1 < *__first2)
+template <class InputIter1, class InputIter2>
+bool lexicographical_compare(InputIter1 first1, InputIter1 last1,
+                             InputIter2 first2, InputIter2 last2) {
+    for ( ; first1 != last1 && first2 != last2; ++first1, ++first2)
+    {
+        if (*first1 < *first2)
             return true;
-        if (*__first2 < *__first1)
+        if (*first2 < *first1)
             return false;
     }
-    return __first1 == __last1 && __first2 != __last2;
+    return first1 == last1 && first2 != last2;
 }
 
-template <class _InputIter1, class _InputIter2, class _Compare>
-bool lexicographical_compare(_InputIter1 __first1, _InputIter1 __last1,
-                             _InputIter2 __first2, _InputIter2 __last2,
-                             _Compare __comp) {
-    for ( ; __first1 != __last1 && __first2 != __last2
-            ; ++__first1, ++__first2) {
-        if (__comp(*__first1, *__first2))
+template <class InputIter1, class InputIter2, class _Compare>
+bool lexicographical_compare(InputIter1 first1, InputIter1 last1,
+                             InputIter2 first2, InputIter2 last2,
+                             _Compare comp) {
+    for ( ; first1 != last1 && first2 != last2; ++first1, ++first2)
+    {
+        if (comp(*first1, *first2))
             return true;
-        if (__comp(*__first2, *__first1))
+        if (comp(*first2, *first1))
             return false;
     }
-    return __first1 == __last1 && __first2 != __last2;
+    return first1 == last1 && first2 != last2;
 }
 
 inline bool
-lexicographical_compare(const unsigned char* __first1,
-                        const unsigned char* __last1,
-                        const unsigned char* __first2,
-                        const unsigned char* __last2)
+lexicographical_compare(const unsigned char* first1,
+                        const unsigned char* last1,
+                        const unsigned char* first2,
+                        const unsigned char* last2)
 {
-    const size_t __len1 = __last1 - __first1;
-    const size_t __len2 = __last2 - __first2;
-    const int __result = memcmp(__first1, __first2, min(__len1, __len2));
-    return __result != 0 ? __result < 0 : __len1 < __len2;
+    const size_t len1 = last1 - first1;
+    const size_t len2 = last2 - first2;
+    const int result = memcmp(first1, first2, min(len1, len2));
+    return result != 0 ? result < 0 : len1 < len2;
 }
 
-inline bool lexicographical_compare(const char* __first1, const char* __last1,
-                                    const char* __first2, const char* __last2)
+inline bool lexicographical_compare(const char* first1, const char* last1,
+                                    const char* first2, const char* last2)
 {
-    return lexicographical_compare((const signed char*) __first1,
-                                   (const signed char*) __last1,
-                                   (const signed char*) __first2,
-                                   (const signed char*) __last2);
+    return lexicographical_compare((const signed char*) first1,
+                                   (const signed char*) last1,
+                                   (const signed char*) first2,
+                                   (const signed char*) last2);
 }
 
-template <class _InputIter1, class _InputIter2>
-int __lexicographical_compare_3way(_InputIter1 __first1, _InputIter1 __last1,
-                                   _InputIter2 __first2, _InputIter2 __last2)
+template <class InputIter1, class InputIter2>
+int __lexicographical_compare_3way(InputIter1 first1, InputIter1 last1,
+                                   InputIter2 first2, InputIter2 last2)
 {
-    while (__first1 != __last1 && __first2 != __last2) {
-        if (*__first1 < *__first2)
+    while (first1 != last1 && first2 != last2) 
+    {
+        if (*first1 < *first2)
             return -1;
-        if (*__first2 < *__first1)
+        if (*first2 < *first1)
             return 1;
-        ++__first1;
-        ++__first2;
+        ++first1;
+        ++first2;
     }
-    if (__first2 == __last2) {
-        return !(__first1 == __last1);
-    }
-    else {
+    if (first2 == last2) 
+        return !(first1 == last1);
+    else 
         return -1;
-    }
 }
 
 inline int
-__lexicographical_compare_3way(const unsigned char* __first1,
-                               const unsigned char* __last1,
-                               const unsigned char* __first2,
-                               const unsigned char* __last2)
+__lexicographical_compare_3way(const unsigned char* first1,
+                               const unsigned char* last1,
+                               const unsigned char* first2,
+                               const unsigned char* last2)
 {
-    const ptrdiff_t __len1 = __last1 - __first1;
-    const ptrdiff_t __len2 = __last2 - __first2;
-    const int __result = memcmp(__first1, __first2, min(__len1, __len2));
-    return __result != 0 ? __result
-                         : (__len1 == __len2 ? 0 : (__len1 < __len2 ? -1 : 1));
+    const ptrdiff_t len1 = last1 - first1;
+    const ptrdiff_t len2 = last2 - first2;
+    const int result = memcmp(first1, first2, min(len1, len2));
+    return result != 0 ? result
+                         : (len1 == len2 ? 0 : (len1 < len2 ? -1 : 1));
 }
 
 inline int
-__lexicographical_compare_3way(const char* __first1, const char* __last1,
-                               const char* __first2, const char* __last2)
+__lexicographical_compare_3way(const char* first1, const char* last1,
+                               const char* first2, const char* last2)
 {
     return __lexicographical_compare_3way(
-            (const signed char*) __first1,
-            (const signed char*) __last1,
-            (const signed char*) __first2,
-            (const signed char*) __last2);
+            (const signed char*) first1,
+            (const signed char*) last1,
+            (const signed char*) first2,
+            (const signed char*) last2);
 }
 
-template <class _InputIter1, class _InputIter2>
-int lexicographical_compare_3way(_InputIter1 __first1, _InputIter1 __last1,
-                                 _InputIter2 __first2, _InputIter2 __last2)
+template <class InputIter1, class InputIter2>
+int lexicographical_compare_3way(InputIter1 first1, InputIter1 last1,
+                                 InputIter2 first2, InputIter2 last2)
 {
-    return __lexicographical_compare_3way(__first1, __last1, __first2, __last2);
+    return __lexicographical_compare_3way(first1, last1, first2, last2);
 }
 
 }

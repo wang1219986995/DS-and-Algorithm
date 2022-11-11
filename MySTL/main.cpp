@@ -11,6 +11,7 @@
 #include <math.h>
 #include <string.h>
 #include <string>
+#include <map>
 #include "gtest/gtest.h"
 using namespace std;
 
@@ -36,7 +37,7 @@ bool isIPV4(string str)
     if(value < 1 || value > 255) return false;
     return true;
 }
-
+#include <unordered_map>
 
 int main()
 {
@@ -45,13 +46,23 @@ int main()
     cout << isIPV4("1.1.1.1.2.23.4") << endl;
     cout << isIPV4("1.1.1.1") << endl;
     cout << isIPV4("1.1.1.1") << endl;
-
-
     string test = "123";
     cout << test.size() << " " << test.length() << endl;
 
-    std::vector<std::string> v = {"123", "234"};
-    std::destroy(v.begin(), v.end());
+
+    cout << CHAR_MAX << std::endl;
+    cout << SCHAR_MAX << std::endl;
+
+
+    std::vector<int> v = {3,2,1};
+    std::cout << next_permutation(v.begin(), v.end()) << std::endl;
+    std::cout << *v.begin() << std::endl;
+
+    std::map<int, std::string> m;
+    m[1] = "a";
+
 
 }
+
+
 
