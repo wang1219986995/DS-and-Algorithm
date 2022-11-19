@@ -1,6 +1,4 @@
-//
-// Created by GW00243464 on 2022/9/6.
-//
+
 
 #ifndef MYSTL_SORT_H
 #define MYSTL_SORT_H

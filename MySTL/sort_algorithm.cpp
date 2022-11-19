@@ -1,6 +1,4 @@
-//
-// Created by GW00243464 on 2022/9/6.
-//
+
 #include <vector>
 #include <iostream>
 #include "sort.h"

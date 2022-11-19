@@ -1,6 +1,3 @@
-//
-// Created by GW00243464 on 2022/9/1.
-//
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -60,6 +57,13 @@ int main()
 
     std::map<int, std::string> m;
     m[1] = "a";
+
+    cout << "if elseif test :" << endl;
+    int value = 0;
+    if(value == 0)
+        std::cout << value << endl;
+    else if(value < 1)
+        std::cout << value << endl;
 
 
 }
