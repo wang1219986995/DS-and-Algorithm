@@ -5,6 +5,11 @@
 #include "stl_algo.h"
 
 
+#define updateHeight(p) p->height = 1 + max(p->M_left->height, p->M_right->height);
+#define stature(p) ((p) ? p->height : -1)
+#define BalFac(x) stature(x->M_left) - stature(x->M_right)
+#define AvlBalanced(x) (-2 < BalFac(x) && (BalFac(x) < 2))
+
 #ifndef MYSTL_STL_AVL_TREE_H
 #define MYSTL_STL_AVL_TREE_H
 namespace MySTL
@@ -148,20 +153,118 @@ inline Value* value_type(const Avl_tree_iterator<Value, Ref, Ptr>&)
 }
 
 
-inline void Avl_tree_rotate_left(Avl_tree_node_base* x, Avl_tree_node_base*& root)
-{
 
+
+void rotateL(Avl_tree_node_base* p, Avl_tree_node_base* header)
+{
+    Avl_tree_node_base* childR = p->M_right;
+    Avl_tree_node_base* childRL = childR->M_left;
+    Avl_tree_node_base* g = p->M_parent;
+
+    p->M_right = childRL;
+    if(childRL) childRL->M_parent = p;
+
+    childR->M_left = p;
+    p->M_parent = childR;
+
+    if(g == header)
+    {
+        childR->M_parent = 0;
+        header->M_parent = childR;
+    }
+    else
+    {
+        childR->M_parent = g;
+        if(p == g->M_left)
+            g->M_left = childR;
+        else
+            g->M_right = childR;
+    }
+    updateHeight(p);
+    updateHeight(childR);
+    updateHeight(g);
 }
 
-inline void Avl_tree_rotate_right(Avl_tree_node_base* x, Avl_tree_node_base*& root)
+void rotateR(Avl_tree_node_base* p, Avl_tree_node_base* header)
 {
+    Avl_tree_node_base* childL = p->M_left;
+    Avl_tree_node_base* childLR = childL->M_right;
+    Avl_tree_node_base* g = p->M_parent;
 
+
+    p->M_right = childLR;
+    if(childLR) childLR->M_parent = p;
+
+    childL->M_right = p;
+    p ->M_parent = childL;
+
+    if(g == 0)
+    {
+        childL->M_parent = 0;
+        header->M_parent = childL;
+    }
+    else
+    {
+        childL->M_parent = g;
+        if(p == g->M_left)
+            g->M_left = childL;
+        else
+            g->M_right = childL;
+    }
+    updateHeight(p);
+    updateHeight(childL);
+    updateHeight(g);
 }
 
-inline void Avl_tree_rebalance_for_erase(Avl_tree_node_base* z)
+void Avl_tree_rebalance_for_insert(Avl_tree_node_base* p, Avl_tree_node_base* g, Avl_tree_node_base* header)
 {
-    Avl_tree_node_base* y = z;
-    Avl_tree_node_base* x = 0;
+    while(p != 0)
+    {
+        updateHeight(p);
+        if(BalFac(p) == 0) break;
+        else if(BalFac(p) == -1 || BalFac(p) == 1)
+        {
+            p = g;
+            g = p->M_parent;
+        }
+        else
+        {
+            if(BalFac(g) == 2)
+            {
+                if(BalFac(p) == 1)
+                    rotateR(g, header);
+                else
+                {
+                    rotateL(p, header);
+                    rotateR(g, header);
+                }
+            }
+            else if(BalFac(g) == -2)
+            {
+                if(BalFac(p) == -1)
+                    rotateL(g, header);
+                else
+                {
+                    rotateR(p, header);
+                    rotateL(g, header);
+                }
+            }
+            break;
+        }
+    }
+}
+
+
+inline Avl_tree_node_base*
+Avl_tree_rebalance_for_erase(Avl_tree_node_base* z,
+                             Avl_tree_node_base*& root,
+                             Avl_tree_node_base*& leftmost,
+                             Avl_tree_node_base*& rightmost)
+{
+    Avl_tree_node_base* y = z;   // 实际被删除的节点(z 或者 z的后继)
+    Avl_tree_node_base* x = 0;   // y 的孩子节点
+    Avl_tree_node_base* x_parent = 0;
+
     if(y->M_left == 0)
         x = y->M_right;
     else if(y->M_right == 0)
@@ -174,6 +277,91 @@ inline void Avl_tree_rebalance_for_erase(Avl_tree_node_base* z)
         x = y->M_right;
     }
 
+    if(y != z) // y 是 z 的后继
+    {
+        z->M_left->M_parent = y;
+        y->M_left = z->M_left;
+        if(y != z->M_right)
+        {
+            x_parent = y->M_parent;
+            if(x) x->M_parent = y->M_parent;
+            y->M_parent->M_left = x;
+            y->M_right = z->M_right;
+            z->M_right->M_parent = y;
+        }
+        else
+            x_parent = y;
+
+        if(root == z)
+            root = y;
+        else if(z->M_parent->M_left == z)
+            z->M_parent->M_left = y;
+        else
+            z->M_parent->M_right = y;
+        y->M_parent = z->M_parent;
+        y = z;  // y is deleted pointer
+    }
+    else   // y == z
+    {
+        x_parent = y->M_parent;
+        if(x) x->M_parent = y->M_parent;
+        if(root == z)
+            root = x;
+        else
+        if(z->M_parent->M_left == z)
+            z->M_parent->M_left = x;
+        else
+            z->M_parent->M_right = x;
+
+        // leftmost、 rightmost 处理
+        if(leftmost == z)
+            if(z->M_right == 0)
+                leftmost = z->M_parent;
+            else
+                leftmost = Avl_tree_node_base::S_minimum(x);
+        if(rightmost == z)
+            if(z->M_left == 0)
+                rightmost = z->M_parent;
+            else
+                rightmost = Avl_tree_node_base::S_maximum(x);
+    }
+
+    // rebalance_for_erase();
+    // 从 x 节点开始向上遍历修复
+    while(x_parent != 0)
+    {
+        updateHeight(x_parent);
+        if(BalFac(x_parent) == 0) break;
+        else if(BalFac(x_parent) == -1 || BalFac(x_parent) == 1)
+        {
+            x = x_parent;
+            x_parent = x_parent->M_parent;
+        }
+        else
+        {
+            if(BalFac(x_parent) == 2)
+            {
+                if(BalFac(x) == -1)
+                {
+                    rotateL(x, M_header);
+                    rotateR(x_parent, M_header);
+                }
+                else
+                    rotateR(x_parent, M_header);
+            }
+            else if(BalFac(x_parent) == -2)
+            {
+                if(BalFac(x) == 1)
+                {
+                    rotateR(x, M_header);
+                    rotateL(x_parent, M_header);
+                }
+                else
+                    rotateL(x_parent, M_header);
+            }
+            break;
+        }
+    }
 
 }
 
@@ -524,7 +712,6 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert
     Link_type y = (Link_type) _y;
     Link_type z;
 
-
     if(y == M_header || x != 0 || M_key_compare(KeyOfValue()(v), S_key(y))) // 这三种条件都是插入为左孩子
     {
         z = M_create_node(v);
@@ -548,83 +735,9 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert
     S_parent(z) = y;
     S_left(z) = 0;
     S_right(z) = 0;
-    // Avl_tree_rebalance_for_insert();
+    Avl_tree_rebalance_for_insert(y);
     ++M_node_count;
     return iterator(z);
-}
-
-
-#define stature(p) ((p) ? p->height : -1)
-#define BalFac(x) stature(x->M_left) - stature(x->M_right)
-#define AvlBalanced(x) (-2 < BalFac(x) && (BalFac(x) < 2))
-void Avl_tree_rebalance_for_insert(Avl_tree_node_base* v, Avl_tree_node_base* p, Avl_tree_node_base* header)
-{
-    while(p != header)
-    {
-        updateHeight(p);
-        if(BalFac(p) == 0) break;
-        else if(BalFac(p) == -1 || BalFac(p) == 1)
-        {
-            v = p;
-            p = p->M_parent;
-        }
-        else
-        {
-            if(BalFac(p) == 2)
-            {
-                if(BalFac(v) == 1)
-                    L(p);
-                else
-                    RL(p);
-            }
-            else if(BalFac(p) == -2)
-                if(BalFac(p) == -1)
-                    R(p);
-                else
-                    LR(p);
-            break;
-        }
-    }
-}
-
-// https://github.com/Lynn-zhang/BalanceTree/blob/master/AVLTree/AVLTree.h
-void L(Avl_tree_node_base* p)
-{
-    Avl_tree_node_base* childL = p->M_left;
-    Avl_tree_node_base* childLR = childL->M_right;
-    Avl_tree_node_base* g = p->M_parent;
-}
-
-
-void R(Avl_tree_node_base* p, Avl_tree_node_base* header)
-{
-    Avl_tree_node_base* childR = p->M_right;
-    Avl_tree_node_base* childRL = childR->M_left;
-    Avl_tree_node_base* g = p->M_parent;
-
-
-    p->M_right = childRL;
-    if(childRL) childRL->M_parent = p;
-
-    childR->M_left = p;
-    p->M_parent = childR;
-
-    // p->left  >>  g->left
-    if(g == header)
-    {
-        childR->M_parent = 0;  //TODO p为root节点，g为M_header 节点时，此处待定
-        header->M_parent = childR;
-    }
-    else
-    {
-        childR->M_parent = g;  //TODO p为root节点，g为M_header 节点时，此处待定
-        if(p == g->M_left)
-            p->M_left = childR;
-        else
-            p->M_right = childR;
-    }
-    updateHeight(p);
-    updateHeight(childR);
 }
 
 
@@ -762,71 +875,218 @@ void Avl_tree<Key, Val, KeyOfValue, Compare, Alloc>::insert_unique(Iterator firs
 
 
 
-
-
-
-
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 inline void Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(iterator position)
 {
-    Avl_tree_node_base* z = position.M_node;
-    Avl_tree_node_base* y = z;   // 实际被删除的节点
-    Avl_tree_node_base* x = 0;   // y 的孩子节点
-    Avl_tree_node_base* x_parent = 0;
+    Link_type y = (Link_type) Avl_tree_rebalance_for_erase(position.M_node, M_header->M_parent,
+                                                           M_header->M_left, M_header->M_right);
+    destroy_node(y);
+    --M_node_count;
+}
 
-    if(y->M_left == 0)
-        x = y->M_right;
-    else if(y->M_right == 0)
-        x = y->M_left;
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
+Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::erase(const Key& x)
+{
+    pair<iterator, iterator> p = equal_range(x);
+    size_type n = 0;
+    distance(p.first, p.second, n);
+    erase(p.first, p.second);
+    return n;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::Link_type
+Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_copy(Link_type x, Link_type p)
+{
+    Link_type top = M_clone_node(x);
+    top->M_parent = p;
+
+    try
+    {
+        if(x->M_right)
+            top->M_right = M_copy(S_right(x), top);
+        p = top;
+        x = S_left(x);
+
+        while(x != 0)
+        {
+            Link_type y = M_clone_node(x);
+            p->M_left = y;
+            y->M_parent = p;
+            if(x->M_right)
+                y->M_right = M_copy(S_right(x), y);
+            p = y;
+            x = S_left(x);
+        }
+    }
+    catch (...)
+    {
+        M_erase(top);
+        throw;
+    }
+    return top;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::M_erase(Link_type x)
+{
+    while(x != 0)
+    {
+        M_erase(S_right(x));
+        Link_type y = S_left(x);
+        destroy_node(x);
+        x = y;
+    }
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(iterator first, iterator last)
+{
+    if(first == begin() && last == end())
+        clear();
     else
-    {
-        y = y->M_right;
-        while(y->M_left != 0)
-            y = y->M_left;
-        x = y->M_right;
-    }
+        while (first != last) erase(first++);
+}
 
-    if(y != z)
-    {
-        z->M_left->M_parent = y;
-        y->M_left = z->M_left;
-        if(y != z->M_right)
-        {
-            x_parent = y->M_parent;
-            if(x) x->M_parent = y->M_parent;
-            y->M_parent->M_left = x;
-            y->M_right = z->M_right;
-            z->M_right->M_parent = y;
-        }
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+void Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::erase(const Key* first, const Key* last)
+{
+    while(first != last) erase(*first++);
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::find(const Key& k)
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
+
+    while(x != 0)
+        if(!M_key_compare(S_key(x), k))
+            y = x, x = S_left(x);
         else
-        {
-            x->M_parent = y;
-        }
+            x = S_right(x);
 
-        if(M_root() == z)
-            M_root() = y;
-        else if(z->M_parent->M_left == z)
-            z->M_parent->M_left = y;
+    iterator j = iterator(y);
+    return (j == end() || M_key_compare(k, S_key(j.M_node))) ?
+            end() : j;
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::find(const Key& k) const
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
+
+    while(x != 0)
+        if(!M_key_compare(S_key(x), k))
+            y = x, x = S_left(x);
         else
-            z->M_parent->M_right = y;
-        y->M_parent = z->M_parent;
-        y = z;  // y is deleted pointer
-    }
-    else   // y == z
-    {
-        x_parent = y->M_parent;
-        if(x) x->M_parent = y->M_parent;
-        if(M_root() == z)
-            M_root() = x;
+            x = S_right(x);
+
+    const_iterator j = const_iterator(y);
+    return (j == end() || M_key_compare(k, S_key(j.M_node))) ?
+            end() : j;
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::size_type
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::count(const Key& k) const
+{
+    pair<const_iterator, const_iterator> p = equal_range(k);
+    size_type n = 0;
+    distance(p.first, p.second, n);
+    return n;
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::lower_bound(const key_type& k)
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
+
+    while(x != 0)
+        if(!M_key_compare(S_key(x), k))
+            y = x, x = S_left(x);
         else
-            if(z->M_parent->M_left == z)
-                z->M_parent->M_left = x;
-            else
-                z->M_parent->M_right = x;
+            x = S_right(x);
+    return iterator(y);
+}
 
-        // leftmost、 rightmost 处理
-    }
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::lower_bound(const key_type& k) const
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
 
+    while(x != 0)
+        if(!M_key_compare(S_key(x), k))
+            y = x, x = S_left(x);
+        else
+            x = S_right(x);
+    return const_iterator(y);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::upper_bound(const key_type &k)
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
+
+    while(x != 0)
+        if(M_key_compare(k, S_key(x)))
+            y = x, x = S_left(x);
+        else
+            x = S_right(x);
+    return iterator(y);
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator
+Avl_tree<Key,Value,KeyOfValue,Compare,Alloc>::upper_bound(const key_type &k) const
+{
+    Link_type y = M_header;
+    Link_type x = M_root();
+
+    while(x != 0)
+        if(M_key_compare(k, S_key(x)))
+            y = x, x = S_left(x);
+        else
+            x = S_right(x);
+    return const_iterator(y);
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+inline pair<typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator,
+            typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator>
+Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const key_type &k)
+{
+    return pair<iterator, iterator>(lower_bound(k), upper_bound(k));
+}
+
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+inline pair<typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator,
+        typename Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::const_iterator>
+Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const key_type &k) const
+{
+    return pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
+}
+
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+bool Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::avl_verift() const
+{
 
 }
 
