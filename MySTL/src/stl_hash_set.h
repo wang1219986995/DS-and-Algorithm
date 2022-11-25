@@ -146,6 +146,119 @@ inline void swap(hash_set<Value, HashFcn, EqualKey, Alloc>& hs1,
 
 
 
+template <class Value, class HashFcn, class EqualKey, class Alloc>
+class hash_multiset
+{
+private:
+    // TODO  Identity<Value> 是什么？
+    typedef hashtable<Value, Value, HashFcn, EqualKey, EqualKey, Alloc> Ht;
+    Ht M_ht;
+public:
+    typedef typename Ht::key_type key_type;
+    typedef typename Ht::value_type value_type;
+    typedef typename Ht::hasher hasher;
+    typedef typename Ht::key_equal key_equal;
+
+    typedef typename Ht::size_type size_type;
+    typedef typename Ht::difference_type difference_type;
+    typedef typename Ht::const_pointer pointer;
+    typedef typename Ht::const_pointer const_pointer;
+    typedef typename Ht::const_reference reference;
+    typedef typename Ht::const_reference const_reference;
+    typedef typename Ht::const_iterator iterator;
+    typedef typename Ht::const_iterator const_iterator;
+    typedef typename Ht::allocator_type allocator_type;
+
+    hasher hash_funct() const { return M_ht.hash_funct(); }
+    key_equal key_eq() const { return M_ht.key_eq(); }
+    allocator_type get_allocator() const { return M_ht.get_allocator(); }
+
+public:
+    hash_multiset():M_ht(100, hasher(), key_equal(), allocator_type()) {}
+    explicit hash_multiset(size_type n) : M_ht(n, hasher(), key_equal(), allocator_type()) {}
+    hash_multiset(size_type n, const hasher& hf) : M_ht(n, hf, key_equal(), allocator_type()) {}
+    hash_multiset(size_type n, const hasher& hf, const key_equal& eql,
+    const allocator_type& a = allocator_type()) : M_ht(n, hf, eql, a) {}
+
+    template<class InputIterator>
+    hash_multiset(InputIterator f, InputIterator l) : M_ht(100, hasher(), key_equal(), allocator_type())
+    { M_ht.insert_equal(f, l); }
+
+    template<class InputIterator>
+    hash_multiset(InputIterator f, InputIterator l, size_type n)
+    :M_ht(n, hasher(), key_eq(), allocator_type())
+    { M_ht.insert_equal(f, l); }
+
+    template <class InputIterator>
+            hash_multiset(InputIterator f, InputIterator l, size_type n, const hasher& hf)
+            :M_ht(n, hf, key_equal(), allocator_type())
+    { M_ht.insert_equal(f, l); }
+
+
+public:
+    size_type size() const { return M_ht.size(); }
+    size_type max_size() const { return M_ht.max_size(); }
+    bool empty() const { return M_ht.empty(); }
+    void swap(hash_multiset& hs) { M_ht.swap(hs.M_ht); }
+
+    template<class Val, class HF, class Eqk, class Al>
+    friend bool operator==(const hash_multiset<Val, HF, Eqk, Al>&,
+                           const hash_multiset<Val, HF, Eqk, Al>&);
+
+    iterator begin() const { return M_ht.begin(); }
+    iterator end() const { return M_ht.end(); }
+
+public:
+    iterator insert(const value_type& obj)
+    { return M_ht.insert_equal(obj); }
+
+    template<class InputIterator>
+    void insert(InputIterator f, InputIterator l)
+    { M_ht.insert_equal(f, l);}
+
+    iterator insert_noresize(const value_type& obj)
+    { return M_ht.insert_equal_noresize(obj); }
+
+    iterator find(const key_type& key) const { return M_ht.find(key); }
+    size_type count(const key_type& key) const { return M_ht.count(key); }
+
+    pair<iterator, iterator> equal_range(const key_type& key) const
+    { return equal_range(key); }
+
+    size_type erase(const key_type& key) { return M_ht.erase(key); }
+    void erase(iterator it) { M_ht.erase(it); }
+    void erase(iterator f, iterator l) { M_ht.erase(f, l); }
+    void clear() { M_ht.clear(); }
+public:
+    void resize(size_type hint) { M_ht.resize(hint); }
+    size_type bucket_count() const { return M_ht.bucket_count(); }
+    size_type max_bucket_count() const { return M_ht.max_bucket_count(); }
+    size_type elems_in_bucket(size_type n) const
+    { return M_ht.elems_in_bucket(n); }
+};
+
+template <class Value, class HashFcn, class EqualKey, class Alloc>
+inline bool operator==(const hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs1,
+                       const hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs2)
+{
+    return hs1.M_ht == hs2.M_ht;
+}
+
+
+template <class Value, class HashFcn, class EqualKey, class Alloc>
+inline bool operator!=(const hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs1,
+                       const hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs2)
+{
+    return !(hs1 == hs2);
+}
+
+
+template <class Value, class HashFcn, class EqualKey, class Alloc>
+inline void swap(hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs1,
+                 hash_multiset<Value, HashFcn, EqualKey, Alloc>& hs2)
+{
+    hs1.swap(hs2);
+}
 
 
 
@@ -174,7 +287,6 @@ public:
     insert_iterator<Container >& operator*() { return *this; }
     insert_iterator<Container >& operator++() { return *this; }
     insert_iterator<Container >& operator++(int) { return *this; }
-
 };
 
 
