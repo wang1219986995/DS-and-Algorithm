@@ -13,7 +13,7 @@ link_directories(
 )
 
 
-add_executable(main main.cpp)
+add_executable(main main.cpp src/stl_hash_map.h)
 add_executable(sort sort_algorithm.cpp)
 
 
