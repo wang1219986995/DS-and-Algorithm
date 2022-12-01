@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.1)
 project(MySTL)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -14,7 +14,6 @@ link_directories(
 
 
 add_executable(main main.cpp src/stl_hash_map.h src/stl_map.h src/stl_set.h src/stl_multimap.h src/stl_multiset.h src/stl_function.h)
-add_executable(sort sort_algorithm.cpp)
 
 
 
