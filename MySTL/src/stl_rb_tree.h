@@ -1,4 +1,3 @@
-
 #ifndef MYSTL_STL_RB_TREE_H
 #define MYSTL_STL_RB_TREE_H
 #include "stl_iterator.h"

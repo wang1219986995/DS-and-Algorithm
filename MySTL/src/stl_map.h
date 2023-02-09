@@ -46,6 +46,7 @@ public:
 
 
 private:
+
     typedef Rb_tree<key_type, value_type,
     std::_Select1st<value_type>, key_compare, Alloc> Rep_type;
     Rep_type M_t;

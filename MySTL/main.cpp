@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <memory>
 #include <queue>
 #include <deque>
 #include <stddef.h>
@@ -10,63 +11,73 @@
 #include <string>
 #include <map>
 #include "gtest/gtest.h"
+#include <unordered_map>
+#include "stdio.h"
+#include "btree_set.h"
+#include "btree_map.h"
+
+
+
+#include <memory>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
 using namespace std;
 
-
-bool isIPV4(string str)
+class node
 {
-    if(str.size() < 7) return false;
-    int start = 0;
-    int count = 0;
-    for(int i = 0; i < str.size(); ++i)
+public:
+    struct leaf
     {
-        if(str[i] == '.')
-        {
-            string tmp = str.substr(start, i - start);
-            int value = std::atoi(tmp.c_str());
-            if(value < 1 || value > 255) return false;
-            if(++count > 3) return false;
-            start = i + 1;
-        }
-    }
-    string tmp = str.substr(start, str.size());
-    int value = std::atoi(tmp.c_str());
-    if(value < 1 || value > 255) return false;
-    return true;
-}
-#include <unordered_map>
+        int a;
+        int b;
+        char c;
+        double d;
+    };
 
-int main()
+    int nums[10];
+};
+
+template <class Key>
+class rb_tree
+{ };
+
+template <class Key>
+class avl_tree
+{ };
+
+template <class Key, class Container=rb_tree<Key>>
+class test_set
 {
-    cout << isIPV4("1.1.1.1") << endl;
-    cout << isIPV4("111.12.78.1000") << endl;
-    cout << isIPV4("1.1.1.1.2.23.4") << endl;
-    cout << isIPV4("1.1.1.1") << endl;
-    cout << isIPV4("1.1.1.1") << endl;
-    string test = "123";
-    cout << test.size() << " " << test.length() << endl;
+public:
+    Container c;
+};
 
+class Test
+{
+public:
+    int& get_reference()
+    {
+        return num;
+    }
+public:
+    int num;
+};
 
-    cout << CHAR_MAX << std::endl;
-    cout << SCHAR_MAX << std::endl;
-
-
-    std::vector<int> v = {3,2,1};
-    std::cout << next_permutation(v.begin(), v.end()) << std::endl;
-    std::cout << *v.begin() << std::endl;
-
-    std::map<int, std::string> m;
-    m[1] = "a";
-
-    cout << "if elseif test :" << endl;
-    int value = 0;
-    if(value == 0)
-        std::cout << value << endl;
-    else if(value < 1)
-        std::cout << value << endl;
-
+typedef vector<int>::allocator_type IntAlloc;
+int main( )
+{
+    btree::btree_set<int> s;
+    s.insert(10);
+    cout << "1" << endl;
+    s.insert(10);
+    s.insert(8);
+    for(int i = 0; i < 10000; ++i)
+        s.insert(i);
 
 }
+
 
 
 
