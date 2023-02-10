@@ -258,7 +258,6 @@ public:
     typedef const Tp&   const_reference;
     typedef Tp          value_type;
 
-//TODO: 这个有用么？
     template <class Tp1> struct rebind {
         typedef allocator<Tp1> other;
     };

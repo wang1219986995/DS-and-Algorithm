@@ -24,76 +24,7 @@ class node_count_if<false, A, B>
 };
 
 
-template <class Node, class Reference, class Pointer>
-class btree_iterator
-{
-public:
-    typedef typename Node::key_type key_type;
-    typedef typename Node::value_type value_type;
-    typedef typename Node::size_type size_type;
-    typedef typename Node::difference_type difference_type;
 
-    typedef Node node_type;
-    typedef const Node const_node;
-
-    typedef Reference reference;
-    typedef Pointer pointer;
-    typedef btree_iterator<Node, reference, pointer> iterator;
-    typedef btree_iterator<Node, const reference, const pointer> const_iterator;
-    typedef btree_iterator<Node, Reference, Pointer> self_type;
-
-public:
-    btree_iterator():node(NULL), position(-1) {}
-    btree_iterator(Node *n, int p):node(n), position(p) {}
-    btree_iterator(const btree_iterator& x):node(x.node), position(x.position) {}
-
-    void increment()
-    {
-        if(node->leaf() && ++position < node->count())
-            return;
-        increment_slow();
-    }
-    void increment_by(int couont);
-    void increment_slow();
-
-    void decrement()
-    {
-        if(node->leaf() && --position >= 0)
-            return;
-        decrement_slow();
-    }
-    void decrement_slow();
-
-    //TODO
-    key_type& key();
-
-
-
-    reference operator*() const
-    {
-        //TODO
-    }
-
-    self_type& operator++() { increment(); return *this; }
-    self_type operator++(int)
-    {
-        self_type tmp = *this;
-        ++*this;
-        return tmp;
-    }
-
-    self_type& operator--() { decrement(); return *this; }
-    self_type operator--(int)
-    {
-        self_type tmp = *this;
-        --*this;
-        return tmp;
-    }
-
-private:
-    Node* node;
-    int position;
-};
 
 // 在map 和 set 中决定 Value是pair 还是 Tp 类型
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc, int TargetNodeSize>
@@ -135,7 +66,6 @@ public:
         kNodeTargetValues = (kTargetNodeSize - sizeof(base_fields))/kValueSize,
         kNodeValues = kNodeTargetValues >= 3 ? kNodeTargetValues : 3,
 
-        //TODO 这两个数字什么意思？
         kExactMatch = 1 << 30,
         kMatchMask = kExactMatch - 1,
     };
@@ -166,15 +96,12 @@ public:
     int max_count() const { return M_fields.max_count; }
 
     btree_node* parent() const { return M_fields.parent; }
-    //TODO 初始化时怎么做？
     bool is_root() const { return parent()->leaf; }
     void make_root()
     {
-        //TODO 这个函数是干嘛用的？
         M_fields.parent = M_fields.parent->parent();
     }
 
-    //TODO leftmost 不用管么？
     btree_node* rightmost() const { return M_fields.rightmost; }
     btree_node** mutable_rightmost() { return &M_fields.rightmost; }
 
@@ -188,16 +115,14 @@ public:
     { return M_fields.values[i]; }
 
     const_reference value(int i) const
-    {
-        return M_fields.values[i];
-    }
+    { return M_fields.values[i]; }
 
     mutable_value_type* mutable_value(int i)
     { return &M_fields.values[i]; }
 
     void value_swap(int i, btree_node* x, int j)
     {
-        // TODO
+        std::swap(mutable_value(i), x->mutable_value(j));
     }
 
     btree_node* child(int i) const { return M_fields.children[i]; }
@@ -239,13 +164,29 @@ public:
         return begin;
     }
 
+    void insert_value(int i, const value_type& x)
+    {
+        value_init(count(), x);
+        value_init(count(), x);
+        for(int j = count(); j > i; --j)
+            value_swap(j, this, j - 1);
 
+        set_count(count() + 1);
 
+        if(!leaf())
+        {
+            ++i;
+            for(int j = count(); j > i; --j)
+            {
+                *mutable_child(j) = child(j - 1);
+                child(j)->set_position(j);
+            }
+            *mutable_child(i) = NULL;
+        }
+    }
 
-    void insert_value(int i, const value_type& x);
     void remove_value(int i)
     {
-        //TODO 这个if 里面的没看懂
         if(!leaf())
         {
             for(int j = i + 1; j < count(); ++j)
@@ -262,24 +203,169 @@ public:
         value_destroy(i);
     }
 
-    void rebalance_right_to_left(btree_node* sibling, int to_move);
-    void rebalance_right_to_right(btree_node* sibling, int to_move);
+    void rebalance_right_to_left(btree_node* src, int to_move)
+    {
+        // make room in the left
+        for(int i = 0; i < to_move; ++i)
+            value_init(i + count());
+
+        value_swap(count(), parent(), position());
+        parent()->value_swap(position(), src, to_move - 1);
+
+        // move values from right to left
+        for(int i = 1; i < to_move; ++i)
+            value_swap(count() + i, src, i - 1);
+
+        // shift values in the right
+        for(int i = to_move; i < src->count(); ++i)
+            src->value_swap(i - to_move, src, i);
+
+        for(int i = 1; i <= to_move; ++i)
+            src->value_destroy(src->count() - i);
+
+        if(!leaf())
+        {
+            for(int i = 0; i < to_move; ++i)
+                set_child(1 + count() + i, src->child(i));
+
+            for(int i = 0; i <= src->count() - to_move; ++i)
+            {
+                src->set_child(i, src->child(i + to_move));
+                *src->mutable_child(i + to_move) = NULL;
+            }
+        }
+    }
+
+    void rebalance_left_to_right(btree_node* dest, int to_move)
+    {
+        //make room in the right
+        for(int i = 0; i < to_move; ++i)
+            dest->value_init(i + dest->count());
+        for(int i = dest->count() - 1; i >= 0; --i)
+            dest->value_swap(i, dest, i + to_move);
+
+        dest->value_swap(to_move - 1, parent(), position());
+        parent()->value_swap(position(), this, count() - to_move);
+        value_destroy(count() - to_move);
+
+        // move values from left to right
+        for(int i = 1; i < to_move; ++i)
+        {
+            value_swap(count() - to_move + i, dest, i - 1);
+            value_destroy(count() - to_move + i);
+        }
+
+        if(!leaf())
+        {
+            for(int i = dest->count(); i >=0; --i)
+            {
+                dest->set_child(i + to_move, dest->child(i));
+                *dest->mutable_child(i) = NULL;
+            }
+            for(int i = 1; i < to_move; ++i)
+            {
+                dest->set_child(i - 1, child(count() - to_move + i));
+                *mutable_child(count() - to_move + i) = NULL;
+            }
+        }
+    }
 
     void split(btree_node* sibling, int insert_position);
-    void merge(btree_node* sibling);
-    void swap(btree_node* src);
 
-    static btree_node* init_leaf()
+    void merge(btree_node* src)
     {
-        //TODO
+        value_init(count());
+        value_swap(count(), parent(), position());
+
+        // move values from the right to left
+        for(int i = 0; i < src->count(); ++i)
+        {
+            value_init(1 + count() + i);
+            value_swap(1 + count() + i, src, i);
+            src->value_destroy(i);
+        }
+
+        if(!leaf())
+        {
+            for(int i = 0; i <= src->count(); ++i)
+            {
+                set_child(1 + count() + i, src->child(i));
+                *src->mutable_child(i) = NULL;
+            }
+        }
+
+        set_count(1 + count() + src->count());
+        src->set_count(0);
+        parent()->remove_value(position());
+    }
+
+    void swap(btree_node* x)
+    {
+        assert(leaf() == x->leaf());
+
+        // Swap the values.
+        for (int i = count(); i < x->count(); ++i) {
+            value_init(i);
+        }
+        for (int i = x->count(); i < count(); ++i) {
+            x->value_init(i);
+        }
+        int n = std::max(count(), x->count());
+        for (int i = 0; i < n; ++i) {
+            value_swap(i, x, i);
+        }
+        for (int i = count(); i < x->count(); ++i) {
+            x->value_destroy(i);
+        }
+        for (int i = x->count(); i < count(); ++i) {
+            value_destroy(i);
+        }
+
+        if (!leaf()) {
+            // Swap the child pointers.
+            for (int i = 0; i <= n; ++i) {
+                btree_swap_helper(*mutable_child(i), *x->mutable_child(i));
+            }
+            for (int i = 0; i <= count(); ++i) {
+                x->child(i)->fields_.parent = x;
+            }
+            for (int i = 0; i <= x->count(); ++i) {
+                child(i)->fields_.parent = this;
+            }
+        }
+
+        // Swap the counts.
+        std::swap(M_fields.count, x->M_fields.count);
+    }
+
+    static btree_node* init_leaf(leaf_fields* f, btree_node* parent, int max_count)
+    {
+        btree_node* n = reinterpret_cast<btree_node*>(f);
+        f->leaf = 1;
+        f->position = 0;
+        f->max_count = max_count;
+        f->count = 0;
+        f->parent = parent;
+        return n;
     }
     static btree_node* init_internal(internal_fields* f, btree_node* parent)
     {
-        //TODO
+        btree_node* n = init_leaf(f, parent, kNodeValues);
+        f->leaf = 0;
+        return n;
     }
     static btree_node* init_root(root_fields* f, btree_node* parent)
     {
-        //TODO
+        btree_node* n = init_internal(f, parent);
+        f->rightmost = parent;
+        f->size = parent->count();
+        return n;
+    }
+
+    void destroy()
+    {
+        for(int i = 0; i < count(); ++i)
+            value_destroy(i);
     }
 
 private:
@@ -301,6 +387,134 @@ private:
 };
 
 
+template <class Node, class Reference, class Pointer>
+class btree_iterator
+{
+public:
+    typedef typename Node::key_type key_type;
+    typedef typename Node::value_type value_type;
+    typedef typename Node::size_type size_type;
+    typedef typename Node::difference_type difference_type;
+
+    typedef Node node_type;
+    typedef const Node const_node;
+
+    typedef Reference reference;
+    typedef Pointer pointer;
+    typedef btree_iterator<Node, reference, pointer> iterator;
+    typedef btree_iterator<Node, const reference, const pointer> const_iterator;
+    typedef btree_iterator<Node, Reference, Pointer> self_type;
+
+public:
+    btree_iterator():node(NULL), position(-1) {}
+    btree_iterator(Node *n, int p):node(n), position(p) {}
+    btree_iterator(const btree_iterator& x):node(x.node), position(x.position) {}
+
+    void increment()
+    {
+        if(node->leaf() && ++position < node->count())
+            return;
+        increment_slow();
+    }
+    void increment_by(int count)
+    {
+        while(count > 0)
+        {
+            if(node->leaf())
+            {
+                int rest = node->count() - position;
+                position += std::min(rest, count);
+                count = count - rest;
+                if(position < node->count())
+                    return;
+            }
+            else
+                --count;
+            increment_slow();
+        }
+    }
+
+    void increment_slow()
+    {
+        if(node->leaf())
+        {
+            self_type save(*this);
+            while(position == node->count() && !node->is_root())
+            {
+                position = node->position();
+                node = node->parent();
+            }
+            if(position == node->count())
+                *this = save;
+        }
+        else
+        {
+            node = node->child(position + 1);
+            while(!node->leaf())
+                node = node->child(0);
+            position;
+        }
+    }
+
+    void decrement()
+    {
+        if(node->leaf() && --position >= 0)
+            return;
+        decrement_slow();
+    }
+
+    void decrement_slow()
+    {
+        if(node->leaf())
+        {
+            self_type save(*this);
+            while(position < 0 && !node->is_root())
+            {
+                position = node->position() - 1;
+                node = node->parent();
+            }
+            if(position < 0)
+                *this = save;
+        }
+        else
+        {
+            node = node->child(position);
+            while(!node->leaf())
+                node = node->child(node->count());
+        }
+        position = node->count() - 1;
+    }
+
+    key_type& key()
+    { return node->key(); }
+
+    reference operator*() const
+    {
+        return node->value(position);
+    }
+
+    self_type& operator++() { increment(); return *this; }
+
+    self_type operator++(int)
+    {
+        self_type tmp = *this;
+        ++*this;
+        return tmp;
+    }
+
+    self_type& operator--() { decrement(); return *this; }
+
+    self_type operator--(int)
+    {
+        self_type tmp = *this;
+        --*this;
+        return tmp;
+    }
+
+private:
+    node_type* node;
+    int position;
+};
 
 
 template <class Node, class Reference, class Pointer>
@@ -318,44 +532,30 @@ inline bool operator!=(const btree_iterator<Node, Reference, Pointer>& x,
 
 
 template <class Tp, class Alloc, bool S_instanceless>
-class btree_alloc_base
+class btree_base
 {
 public:
-    typedef typename Alloc_traits<Tp, Alloc>::allocator_type allocator_type;
-    // allocator_type get_allocator() const { return M_node_allocator; }
+    typedef typename Alloc_traits<Tp, Alloc>::allocator_type::template rebind<char>::other allocator_type;
 
+    btree_base() : M_node_allocator(allocator_type()) {}
+    btree_base(const allocator_type& a) : M_node_allocator(a) {}
+    allocator_type get_allocator() const { return M_node_allocator; }
 
-protected:
-    //TODO
-    // typename Alloc_traits<btree_node<>, Alloc>::allocator_type M_node_allocator;
-//    btree_node<Tp>* M_header;
-//
-//    btree_node<Tp>* M_get_node()
-//    { return M_node_allocator.allocate(1); }
-//    void M_put_node(btree_node<Tp>* p)
-//    { M_node_allocator.deallocate(p, 1); }
+public:
+    allocator_type M_node_allocator;
 };
 
-template <class Tp, class Alloc>
-class btree_base : public btree_alloc_base<Tp, Alloc, Alloc_traits<Tp, Alloc>::S_instanceless>
-{
-    typedef btree_alloc_base<Tp, Alloc, Alloc_traits<Tp, Alloc>::S_instanceless> Base;
-    typedef typename Base::allocator_type allocator_type;
-
-    //TODO
-
-};
 
 
 
 
 template <class Key, class Value, class KeyOfValue, class Compare,
         class Alloc=allocator<Value>, int TargetNodeSize=256>
-class btree : protected btree_base<Value, Alloc>
+class btree : protected btree_base<Value, Alloc, Alloc_traits<Value, Alloc>::S_instanceless>
 {
 public:
     typedef btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize> self_type;
-    typedef btree_base<Value, Alloc> Base;
+    typedef btree_base<Value, Alloc, Alloc_traits<Value, Alloc>::S_instanceless> Base;
     typedef btree_node<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize> node_type;
     typedef Key key_type;
     typedef Value value_type;
@@ -376,10 +576,8 @@ public:
     typedef typename node_type::leaf_fields leaf_fields;
     typedef typename node_type::internal_fields internal_fields;
     typedef typename node_type::root_fields root_fields;
-    //TODO get_allocator
 
-    typedef typename allocator_type::template rebind<char>::other
-            internal_allocator_type;
+    allocator_type get_allocator() const { return Base::get_allocator(); }
 
 private:
     enum
@@ -619,20 +817,27 @@ private:
             if((right->count() > kMinNodeValues) &&
             (iter->node->count() == 0 || iter->position > 0))
             {
-
+                int to_move = (right->count() - iter->node->count()) / 2;
+                to_move = std::min(to_move, right->count() - 1);
+                iter->node->rebalance_right_to_left(right, to_move);
+                return false;
             }
         }
 
         if(iter->node->position() > 0)
         {
             node_type* left = parent->child(iter->node->position() - 1);
-
-
-
-
-
+            if((left->count() > kMinNodeValues) &&
+                    (iter->node->count() == 0 || iter->position < iter->node->count()))
+            {
+                int to_move = (left->count() - iter->node->count()) / 2;
+                to_move = std::min(to_move, left->count() - 1);
+                left->rebalance_right_to_right(iter->node, to_move);
+                iter->position += to_move;
+                return false;
+            }
         }
-
+        return true;
     }
 
     void try_shrink()
@@ -858,7 +1063,7 @@ void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterat
         internal_delete = true;
         --*mutable_size();
     }
-    else if(!root()->leaf())
+    else if(!root()->leaf()) //TODO 这里是为什么？
         --*mutable_size();
 
     poistion->remove_value(poistion.position);
@@ -883,6 +1088,15 @@ void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterat
         poistion.node = poistion.node->parent();
     }
 
+
+    if(res.position == res.node->count())
+    {
+        res.position = res.node->count() - 1;
+        ++res;
+    }
+
+    if(internal_delete) ++res;
+    return res;
 }
 
 //    void erase(iterator position);

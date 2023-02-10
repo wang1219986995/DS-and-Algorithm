@@ -15,66 +15,40 @@
 #include "stdio.h"
 #include "btree_set.h"
 #include "btree_map.h"
-
-
-
 #include <memory>
 #include <iostream>
 #include <algorithm>
 #include <vector>
-
-using namespace std;
-
-class node
+#include "src/stl_alloc.h"
+#include "src/stl_btree.h"
+struct Test
 {
-public:
-    struct leaf
-    {
-        int a;
-        int b;
-        char c;
-        double d;
-    };
-
+    int a;
+    int b;
     int nums[10];
 };
 
-template <class Key>
-class rb_tree
-{ };
-
-template <class Key>
-class avl_tree
-{ };
-
-template <class Key, class Container=rb_tree<Key>>
-class test_set
-{
-public:
-    Container c;
-};
-
-class Test
-{
-public:
-    int& get_reference()
-    {
-        return num;
-    }
-public:
-    int num;
-};
-
-typedef vector<int>::allocator_type IntAlloc;
 int main( )
 {
-    btree::btree_set<int> s;
-    s.insert(10);
-    cout << "1" << endl;
-    s.insert(10);
-    s.insert(8);
-    for(int i = 0; i < 10000; ++i)
-        s.insert(i);
+    MySTL::allocator<int>::rebind<Test>::other alloc;
+    auto pp = alloc.allocate(1);
+    std::cout << sizeof(*pp) << std::endl;
+
+
+
+    std::allocator<int>::rebind<Test>::other std_alloc;
+    auto p = std_alloc.allocate(1);
+    std::cout << sizeof(*p) << std::endl;
+
+    MySTL::btree_base<int, MySTL::allocator<int>, true> a;
+    char* c = a.M_node_allocator.allocate(10);
+    std::cout << "----------" << std::endl;
+    for(int i = 0; i <= 10; ++i)
+        *c = 'a';
+
+
+
+
 
 }
 

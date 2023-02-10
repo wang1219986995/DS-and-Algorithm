@@ -1357,12 +1357,10 @@ void btree_node<P>::rebalance_right_to_left(btree_node *src, int to_move) {
 
   // Move the delimiting value to the left node and the new delimiting value
   // from the right node.
-  // 将父节点上的那个值交换到右结点
   value_swap(count(), parent(), position());
   parent()->value_swap(position(), src, to_move - 1);
 
   // Move the values from the right to the left node.
-  // 右节点的 to_move - 1 个元素放到左节点
   for (int i = 1; i < to_move; ++i) {
     value_swap(count() + i, src, i - 1);
   }
