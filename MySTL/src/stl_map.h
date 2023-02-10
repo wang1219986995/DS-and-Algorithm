@@ -5,6 +5,8 @@
 #include "stl_pair.h"
 #include "stl_alloc.h"
 #include "stl_rb_tree.h"
+#include "stl_btree.h"
+#include "stl_alloc.h"
 
 
 namespace MySTL
@@ -30,7 +32,7 @@ public:
     typedef Key key_type;
     typedef Tp data_type;
     typedef Tp mapped_type;
-    typedef pair<const Key, Tp> value_type;
+    typedef MySTL::pair<const Key, Tp> value_type;
     typedef Compare key_compare;
 
 class value_compare : public std::binary_function<value_type, value_type, bool>
@@ -47,8 +49,10 @@ public:
 
 private:
 
-    typedef Rb_tree<key_type, value_type,
-    std::_Select1st<value_type>, key_compare, Alloc> Rep_type;
+    typedef btree<key_type, value_type,
+    std::_Select1st<value_type>, key_compare, MySTL::allocator<value_type>, 256> Rep_type;
+//    typedef Rb_tree<key_type, value_type,
+//    std::_Select1st<value_type>, key_compare, Alloc> Rep_type;
     Rep_type M_t;
 
 public:
@@ -63,7 +67,6 @@ public:
     typedef typename Rep_type::size_type size_type;
     typedef typename Rep_type::difference_type difference_type;
     typedef typename Rep_type::allocator_type allocator_type;
-
 
 
 

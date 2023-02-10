@@ -13,10 +13,15 @@ link_directories(
 )
 
 
-add_executable(main main.cpp src/stl_hash_map.h src/stl_map.h src/stl_set.h src/stl_multimap.h src/stl_multiset.h src/stl_function.h)
-
-
-
+add_executable(main
+        main.cpp
+        src/stl_hash_map.h
+        src/stl_map.h
+        src/stl_set.h
+        src/stl_multimap.h
+        src/stl_multiset.h
+        src/stl_function.h
+        src/stl_btree.h)
 
 
 add_executable(test_stl_iterator TEST/stl_iterator_test.cpp)

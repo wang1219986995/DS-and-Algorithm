@@ -1,4 +1,3 @@
-//
 
 #ifndef MYSTL_STL_ALGO_H
 #define MYSTL_STL_ALGO_H
