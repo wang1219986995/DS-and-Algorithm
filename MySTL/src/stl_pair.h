@@ -16,6 +16,13 @@ struct pair{
     pair():first(T1()), second(T2()) {}
     pair(const T1& a, const T2& b): first(a), second(b) {}
 
+    pair& operator=(const pair<T1, T2>& x)
+    {
+        first = x.first;
+        second = x.second;
+        return *this;
+    }
+
     template<class U1, class U2>
     pair(const pair<U1, U2>& p): first(p.first), second(p.second){}
 };

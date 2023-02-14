@@ -19,32 +19,10 @@
 #include "src/stl_map.h"
 
 
-class HashTest
-{
-public:
-    int a;
-    int b;
-    int c;
-
-    bool operator==(const HashTest& x)
-    {
-        return a==x.a && b==x.b && c==x.c;
-    }
-};
-
-inline bool operator==(const HashTest& x, const HashTest& y)
-{
-    return x.a==y.a && x.b==y.b && x.c==y.c;
-}
-
-
 int main( )
 {
-
-
-
-    MySTL::map<int, int> m;
-    m.insert(MySTL::pair<int, int>(1, 10));
+    MySTL::avl_map<int, int> m;
+    m.insert(MySTL::pair<int, int>(1,1));
 
 
     std::cout << "finish" << std::endl;

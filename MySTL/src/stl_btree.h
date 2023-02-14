@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <algorithm>
 
 #include "type_traits.h"
 #include "stl_alloc.h"
@@ -90,14 +91,14 @@ public:
 public:
     bool leaf() const { return M_fields.leaf; }
     int position() const { return M_fields.position; }
-    void set_position(int v) { M_fields.postion = v;}
+    void set_position(int v) { M_fields.position = v;}
 
     int count() const { return M_fields.count; }
-    void set_count(int v) const { M_fields.count = v; }
+    void set_count(int v) { M_fields.count = v; }
     int max_count() const { return M_fields.max_count; }
 
     btree_node* parent() const { return M_fields.parent; }
-    bool is_root() const { return parent()->leaf; }
+    bool is_root() const { return parent()->leaf(); }
     void make_root()
     {
         M_fields.parent = M_fields.parent->parent();
@@ -123,7 +124,12 @@ public:
 
     void value_swap(int i, btree_node* x, int j)
     {
-        std::swap(mutable_value(i), x->mutable_value(j));
+        value_type tmp = value(i);
+        M_fields.values[i] = x->value(j);
+        // value(i) = x->value(j);
+        x->value(j) = tmp;
+//        *mutable_value(i) = x->value(j);
+//        *x->mutable_value(j) = tmp;
     }
 
     btree_node* child(int i) const { return M_fields.children[i]; }
@@ -135,14 +141,13 @@ public:
         c->M_fields.position = i;
     }
 
-    template<class Cmp>
-    int lower_bound(const value_type& k) const
+    int lower_bound(const key_type& k) const
     {
         size_type begin = 0, end = count();
         while (begin != end)
         {
             int mid = (begin + end) / 2;
-            if (key_compare()(KeyOfValue(M_fields.values[mid]), k))
+            if (key_compare()(KeyOfValue()(M_fields.values[mid]), k))
                 begin = mid + 1;
             else
                 end = mid;
@@ -150,14 +155,13 @@ public:
         return begin;
     }
 
-    template<class Cmp>
-    int upper_bound(const value_type& k, const Cmp& comp) const
+    int upper_bound(const key_type& k) const
     {
         size_type begin = 0, end = count();
         while (begin != end)
         {
             int mid = (begin + end) / 2;
-            if (!key_compare()(KeyOfValue(M_fields.values[mid]), k))
+            if (!key_compare()(KeyOfValue()(M_fields.values[mid]), k))
                 begin = mid + 1;
             else
                 end = mid;
@@ -235,6 +239,9 @@ public:
                 *src->mutable_child(i + to_move) = NULL;
             }
         }
+
+        set_count(count() + to_move);
+        src->set_count(src->count() - to_move);
     }
 
     void rebalance_left_to_right(btree_node* dest, int to_move)
@@ -271,7 +278,44 @@ public:
         }
     }
 
-    void split(btree_node* sibling, int insert_position);
+    void split(btree_node* dest, int insert_position)
+    {
+        // We bias the split based on the position being inserted. If we're
+        // inserting at the beginning of the left node then bias the split to put
+        // more values on the right node. If we're inserting at the end of the
+        // right node then bias the split to put more values on the left node.
+        if (insert_position == 0) {
+            dest->set_count(count() - 1);
+        } else if (insert_position == max_count()) {
+            dest->set_count(0);
+        } else {
+            dest->set_count(count() / 2);
+        }
+        set_count(count() - dest->count());
+        assert(count() >= 1);
+
+        // Move values from the left sibling to the right sibling.
+        for (int i = 0; i < dest->count(); ++i) {
+            dest->value_init(i);
+            value_swap(count() + i, dest, i);
+            value_destroy(count() + i);
+        }
+
+        // The split key is the largest value in the left sibling.
+        set_count(count() - 1);
+        parent()->insert_value(position(), value_type());
+        value_swap(count(), parent(), position());
+        value_destroy(count());
+        parent()->set_child(position() + 1, dest);
+
+        if (!leaf()) {
+            for (int i = 0; i <= dest->count(); ++i) {
+                assert(child(count() + i + 1) != NULL);
+                dest->set_child(i, child(count() + i + 1));
+                *mutable_child(count() + i + 1) = NULL;
+            }
+        }
+    }
 
     void merge(btree_node* src)
     {
@@ -325,13 +369,13 @@ public:
         if (!leaf()) {
             // Swap the child pointers.
             for (int i = 0; i <= n; ++i) {
-                btree_swap_helper(*mutable_child(i), *x->mutable_child(i));
+                std::swap(*mutable_child(i), *x->mutable_child(i));
             }
             for (int i = 0; i <= count(); ++i) {
-                x->child(i)->fields_.parent = x;
+                x->child(i)->M_fields.parent = x;
             }
             for (int i = 0; i <= x->count(); ++i) {
-                child(i)->fields_.parent = this;
+                child(i)->M_fields.parent = this;
             }
         }
 
@@ -347,12 +391,14 @@ public:
         f->max_count = max_count;
         f->count = 0;
         f->parent = parent;
+        memset(&f->values, 0, max_count * sizeof(value_type));
         return n;
     }
     static btree_node* init_internal(internal_fields* f, btree_node* parent)
     {
         btree_node* n = init_leaf(f, parent, kNodeValues);
         f->leaf = 0;
+        memset(f->children, 0, sizeof(f->children));
         return n;
     }
     static btree_node* init_root(root_fields* f, btree_node* parent)
@@ -396,6 +442,7 @@ public:
     typedef typename Node::value_type value_type;
     typedef typename Node::size_type size_type;
     typedef typename Node::difference_type difference_type;
+    typedef bidirectional_iterator_tag iterator_category;
 
     typedef Node node_type;
     typedef const Node const_node;
@@ -494,7 +541,11 @@ public:
         return node->value(position);
     }
 
-    self_type& operator++() { increment(); return *this; }
+    self_type& operator++()
+    {
+        increment();
+        return *this;
+    }
 
     self_type operator++(int)
     {
@@ -527,7 +578,19 @@ inline bool operator!=(const btree_iterator<Node, Reference, Pointer>& x,
 { return !(x==y); }
 
 
+template <class N, class R, class P>
+inline bidirectional_iterator_tag iterator_category(const btree_iterator<N, R, P>&)
+{ return bidirectional_iterator_tag(); }
 
+//template <class N, class R, class P>
+//inline typename  btree_iterator<N, R, P>::difference_type*
+//distance_type(const btree_iterator<N, R, P>&)
+//{ return (btree_iterator<N,R,P>::difference_type*)(0); }
+//
+//template <class N, class R, class P>
+//inline typename btree_iterator<N, R, P>::value_type*
+//value_type(const btree_iterator<N, R, P>&)
+//{ return (btree_iterator<N,R,P>::value_type*)(0); }
 
 template <class Tp, class Alloc, bool S_instanceless>
 class btree_base
@@ -538,7 +601,8 @@ public:
 
     btree_base() : M_node_allocator(allocator_type()) {}
     btree_base(const allocator_type& a) : M_node_allocator(a) {}
-    allocator_type get_allocator() const { return M_node_allocator; }
+    allocator_type get_allocator() const { return allocator_type(); }
+    internal_allocator_type get_internal_allocator() const { return M_node_allocator; }
 
 public:
     internal_allocator_type M_node_allocator;
@@ -579,6 +643,7 @@ public:
     using Base::M_node_allocator;
 
     allocator_type get_allocator() const { return Base::get_allocator(); }
+    allocator_type get_internal_allocator() const { return Base::get_internal_allocator(); }
 
 private:
     enum
@@ -606,12 +671,36 @@ private:
 
 
 public:
-    btree(const key_compare& comp, const allocator_type& alloc);
+    btree(const key_compare& comp, const allocator_type& alloc):
+    M_key_compare(comp), M_root(NULL){}
 
-    btree(const self_type& x);
+    btree(const self_type& x): M_key_compare(x.key_comp()), M_root(NULL)
+    { assign(x); }
+
+    self_type& operator=(const self_type& x)
+    {
+        if(&x == this)
+            return *this;
+        assign(x);
+        return *this;
+    }
 
     ~btree(){ clear(); }
 
+    void assign(const self_type& x)
+    {
+        clear();
+        M_key_compare = x.key_comp();
+        M_node_allocator = x.get_internal_allocator();
+
+        for(const_iterator iter = x.begin(); iter != x.end(); ++iter)
+        {
+            if(empty())
+                insert_equal(*iter);
+            else
+                internal_insert(end(), *iter);
+        }
+    }
 
 
 
@@ -619,9 +708,9 @@ public:
     iterator begin() { return iterator(leftmost(), 0); }
     const_iterator begin() const { return const_iterator(leftmost(), 0); }
 
-    iterator end() { iterator(rightmost(), rightmost() ? rightmost()->count() : 0); }
+    iterator end() { return iterator(rightmost(), rightmost() ? rightmost()->count() : 0); }
 
-    const_iterator end() const { const_iterator(rightmost(), rightmost() ? rightmost()->count() : 0); }
+    const_iterator end() const { return const_iterator(rightmost(), rightmost() ? rightmost()->count() : 0); }
 
     reverse_iterator rbegin() { return reverse_iterator(end()); }
     const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
@@ -681,12 +770,12 @@ public:
 
     iterator lower_bound(const key_type& key)
     {
-        internal_end(internal_lower_bound(key, iterator(root(), 0)));
+        return internal_end(internal_lower_bound(key, iterator(root(), 0)));
     }
 
     const_iterator lower_bound(const key_type& key) const
     {
-        internal_end(internal_lower_bound(key, iterator(root(), 0)));
+        return internal_end(internal_lower_bound(key, iterator(root(), 0)));
     }
 
     iterator upper_bound(const key_type& key)
@@ -700,24 +789,21 @@ public:
     }
 
     pair<iterator, iterator> equal_range(const key_type& x)
-    { return make_pair(lower_bound(x), upper_bound(x)); }
+    { return MySTL::make_pair(lower_bound(x), upper_bound(x)); }
+
 
     pair<const_iterator, const_iterator> equal_range(const key_type& x) const
-    { return make_pair(lower_bound(x), upper_bound(x)); }
+    { return MySTL::make_pair(lower_bound(x), upper_bound(x)); }
 
 
-
-
-
-
-private:
+public:
     node_type* root() { return M_root; }
     const node_type* root() const { return M_root; }
     node_type** mutable_root() { return &M_root; }
 
     node_type* rightmost() { return (!root() || root()->leaf()) ? root() : root()->rightmost(); }
     const node_type* rightmost() const { return (!root() || root()->leaf()) ? root() : root()->rightmost(); }
-    node_type** mutable_rightmost() const { return root()->mutable_rightmost(); }
+    node_type** mutable_rightmost() { return root()->mutable_rightmost(); }
 
     //TODO leftmost 为什么设置为 root 父节点？
     node_type* leftmost() { return root() ? root()->parent() : NULL; }
@@ -784,7 +870,7 @@ private:
         {
             for(;;)
             {
-                iter.position = iter.node->lower_bound(key);
+                iter.position = iter.node->lower_bound(key) & kMatchMatch;
                 if(iter.node->leaf())
                     break;
                 iter.node = iter.node->child(iter.position);
@@ -838,7 +924,8 @@ private:
             if (node->position() > 0) {
                 // Try rebalancing with our left sibling.
                 node_type *left = parent->child(node->position() - 1);
-                if (left->count() < left->max_count()) {
+                if (left->count() < left->max_count())
+                {
                     // We bias rebalancing based on the position being inserted. If we're
                     // inserting at the end of the right node then we bias rebalancing to
                     // fill up the left node.
@@ -847,9 +934,13 @@ private:
                     to_move = std::max(1, to_move);
 
                     if (((insert_position - to_move) >= 0) ||
-                        ((left->count() + to_move) < left->max_count())) {
+                        ((left->count() + to_move) < left->max_count()))
+                    {
+                        std::cout << "max count=" << node->max_count() << "  count=" << node->count() << " to_move=" << to_move << std::endl;
+                        std::cout << "left max count=" << left->max_count() << "  count=" << left->count() << " to_move=" << to_move << std::endl;
                         left->rebalance_right_to_left(node, to_move);
-
+                        std::cout << "max count=" << node->max_count() << "  count=" << node->count() << " to_move=" << to_move << std::endl;
+                        std::cout << "left max count=" << left->max_count() << "  count=" << left->count() << " to_move=" << to_move << std::endl;
                         assert(node->max_count() - node->count() == to_move);
                         insert_position = insert_position - to_move;
                         if (insert_position < 0) {
@@ -863,7 +954,8 @@ private:
                 }
             }
 
-            if (node->position() < parent->count()) {
+            if (node->position() < parent->count())
+            {
                 // Try rebalancing with our right sibling.
                 node_type *right = parent->child(node->position() + 1);
                 if (right->count() < right->max_count()) {
@@ -891,11 +983,13 @@ private:
 
             // Rebalancing failed, make sure there is room on the parent node for a new
             // value.
-            if (parent->count() == parent->max_count()) {
+            if (parent->count() == parent->max_count())
+            {
                 iterator parent_iter(node->parent(), node->position());
                 rebalance_or_split(&parent_iter);
             }
-        } else {  // node 不为 root 时
+        } else
+        {  // node 不为 root 时
             // Rebalancing not possible because this is the root node.
             if (root()->leaf()) {
                 // The root node is currently a leaf node: create a new root node and set
@@ -903,7 +997,6 @@ private:
                 parent = new_internal_root_node();
                 parent->set_child(0, root());
                 *mutable_root() = parent;
-                assert(*mutable_rightmost() == parent->child(0));
             } else { // root() 不是叶节点
                 // The root node is an internal node. We do not want to create a new root
                 // node because the root node is special and holds the size of the tree
@@ -954,7 +1047,7 @@ private:
         if(iter->node->position() > 0)
         {
             node_type* left = parent->child(iter->node->position() - 1);
-            if((1 + left->count() + iter->node->count()) <= left->make_count())
+            if((1 + left->count() + iter->node->count()) <= left->max_count())
             {
                 iter->position += 1 + left->count();
                 merge_nodes(left, iter->node);
@@ -992,7 +1085,7 @@ private:
             {
                 int to_move = (left->count() - iter->node->count()) / 2;
                 to_move = std::min(to_move, left->count() - 1);
-                left->rebalance_right_to_right(iter->node, to_move);
+                left->rebalance_left_to_right(iter->node, to_move);
                 iter->position += to_move;
                 return false;
             }
@@ -1035,14 +1128,24 @@ private:
     iterator internal_insert(iterator iter, const value_type& v);
 
     template<typename Itertype>
-    static Itertype internal_last(Itertype iter);
+    static Itertype internal_last(Itertype iter)
+    {
+        while(iter.node && iter.position == iter.node->count())
+        {
+            iter.position = iter.node->position();
+            iter.node = iter.node->parent();
+            if(iter.node->leaf())
+                iter.node = NULL;
+        }
+        return iter;
+    }
 
     template<class Itertype>
     std::pair<Itertype, int> internal_locate(const key_type& key, Itertype iter) const
     {
         for(;;)
         {
-            iter.position = iter.node->lower_bound(key, Compare());
+            iter.position = iter.node->lower_bound(key);
             if(iter.node->leaf())  break;
             iter.node = iter.node->child(iter.position);
         }
@@ -1077,9 +1180,9 @@ btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::insert_unique(con
 
          // 已存在该值
          if(last.node && !M_key_compare(KeyOfValue()(x), last.key()))
-             return std::make_pair(last, false);
+             return MySTL::make_pair(last, false);
      }
-     return std::make_pair(internal_insert(iter, x), true);
+     return MySTL::make_pair(internal_insert(iter, x), true);
 };
 
 
@@ -1183,7 +1286,7 @@ template <class Key, class Value, class KeyOfValue, class Compare,
 typename btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::iterator
 btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::internal_insert(iterator iter, const value_type &v)
 {
-    if(!iter->leaf())
+    if(!iter.node->leaf())
     {
         --iter;
         ++iter.position; // 实际是将 position 置为 count()
@@ -1216,18 +1319,33 @@ btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::internal_insert(i
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc, int TargetNodeSize>
 void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterator poistion)
 {
+    std::cout<< "position: " << poistion.node << " " << poistion.position << std::endl;
+    std::cout<< "root(): " << root() << std::endl;
+    std::cout<< "(): " << M_root->leaf() << std::endl;
     bool internal_delete = false;
+    std::cout << "1" << std::endl;
+
     if(!poistion.node->leaf())
     {
+        std::cout << "11" << std::endl;
         iterator tmp_iter(poistion--);
+        std::cout << "11" << std::endl;
         poistion.node->value_swap(poistion.position, tmp_iter.node, tmp_iter.position);
+        std::cout << "11" << std::endl;
         internal_delete = true;
+        std::cout << "11" << std::endl;
         --*mutable_size();
+        std::cout << "11" << std::endl;
     }
     else if(!root()->leaf()) //TODO 这里是为什么？
+    {
         --*mutable_size();
 
-    poistion->remove_value(poistion.position);
+    }
+
+    std::cout << "remove begin" << std::endl;
+    poistion.node->remove_value(poistion.position);
+    std::cout << "remove end" << std::endl;
 
     iterator res(poistion);
     for(;;)
@@ -1235,8 +1353,8 @@ void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterat
         if(poistion.node == root())
         {
             try_shrink();
-            if(empty())
-                return end();
+//            if(empty())
+//                return end();
             break;
         }
         if(poistion.node->count() >= kMinNodeValues)
@@ -1257,16 +1375,21 @@ void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterat
     }
 
     if(internal_delete) ++res;
+    std::cout << "1" << std::endl;
     // return res;
 }
 
+#include <iostream>
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc, int TargetNodeSize>
 typename btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::size_type
 btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(const key_type& x)
 {
+    std::cout << "root() " << root() << std::endl;
     pair<iterator, iterator> p = equal_range(x);
     size_type n = 0;
     distance(p.first, p.second, n);
+    std::cout << p.first.node << "  " << p.first.position << std::endl;
+    std::cout << p.second.node << "  " << p.second.position << std::endl;
     erase(p.first, p.second);
     return n;
 }
@@ -1275,8 +1398,9 @@ template <class Key, class Value, class KeyOfValue, class Compare, class Alloc, 
 void btree<Key, Value, KeyOfValue, Compare, Alloc, TargetNodeSize>::erase(iterator first, iterator last)
 {
     if(first == begin() && last == end()) clear();
-    for(; first != last; ++first)
-        erase(first);
+    else
+        for(; first != last; ++first)
+            erase(first);
 }
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc, int TargetNodeSize>
