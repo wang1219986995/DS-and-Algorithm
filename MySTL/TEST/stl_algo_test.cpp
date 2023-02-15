@@ -376,16 +376,16 @@ TEST(algorithm, other)
     EXPECT_EQ(std::is_sorted(v1.begin(), v1.end()), MySTL::is_sorted(test1.begin(), test1.end()));
 }
 
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-
-    RUN_ALL_TESTS();
-
-    cout << "Press enter to exit..." << endl;
-    cin.get();
-    return 0;
-}
+//int main(int argc, char **argv)
+//{
+//    ::testing::InitGoogleTest(&argc, argv);
+//
+//    RUN_ALL_TESTS();
+//
+//    cout << "Press enter to exit..." << endl;
+//    cin.get();
+//    return 0;
+//}
 
 
 

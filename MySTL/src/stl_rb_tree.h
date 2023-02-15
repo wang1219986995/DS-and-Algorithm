@@ -44,7 +44,7 @@ struct Rb_tree_node : public Rb_tree_node_base
 struct Rb_tree_base_iterator
 {
     typedef Rb_tree_node_base::Base_ptr Base_ptr;
-    typedef bidirectional_iterator_tag iterator_tag;
+    typedef bidirectional_iterator_tag iterator_category;
     typedef ptrdiff_t difference_type;
     Base_ptr M_node;
 
@@ -192,7 +192,7 @@ inline void Rb_tree_rotate_right(Rb_tree_node_base* x, Rb_tree_node_base*& root)
     else
         x->M_parent->M_left = y;
 
-    y->M_left = x;
+    y->M_right = x;
     x->M_parent = y;
 }
 
@@ -246,7 +246,7 @@ inline void Rb_tree_rebalance(Rb_tree_node_base* x, Rb_tree_node_base*& root)
             }
         }
     }
-    root->M_color = S_rb_tree_red;
+    root->M_color = S_rb_tree_black;
 }
 
 inline Rb_tree_node_base* Rb_tree_rebalance_for_erase(Rb_tree_node_base* z,
@@ -276,7 +276,7 @@ inline Rb_tree_node_base* Rb_tree_rebalance_for_erase(Rb_tree_node_base* z,
         y->M_left = z->M_left;
         if(y != z->M_right)
         {
-            x_parent = y->M_right;
+            x_parent = y->M_parent;
             if(x) x->M_parent = y->M_parent;
             y->M_parent->M_left = x;
             y->M_right = z->M_right;
@@ -284,12 +284,11 @@ inline Rb_tree_node_base* Rb_tree_rebalance_for_erase(Rb_tree_node_base* z,
         }
         else x_parent = y;
 
-        if(root == z)
-            root = y;
+        if(root == z) root = y;
         else if(z->M_parent->M_left == z)
-            z->M_parent->M_left == y;
+            z->M_parent->M_left = y;
         else
-            z->M_parent->M_right == y;
+            z->M_parent->M_right = y;
         y->M_parent = z->M_parent;
         swap(y->M_color, z->M_color);
         y = z;
@@ -298,8 +297,7 @@ inline Rb_tree_node_base* Rb_tree_rebalance_for_erase(Rb_tree_node_base* z,
     {
         x_parent = y->M_parent;
         if(x) x->M_parent = y->M_parent;
-        if(root = z)
-            root = x;
+        if(root == z) root = x;
         else
             if(z->M_parent->M_left == z)
                 z->M_parent->M_left = x;
@@ -321,12 +319,77 @@ inline Rb_tree_node_base* Rb_tree_rebalance_for_erase(Rb_tree_node_base* z,
 
     if(y->M_color != S_rb_tree_red)  // rebalance
     {
-
+        while(x != root && (x == 0 || x->M_color == S_rb_tree_black))
+        {
+            if(x == x_parent->M_left)
+            {
+                Rb_tree_node_base* w = x_parent->M_right;
+                if(w->M_color == S_rb_tree_red)
+                {
+                    w->M_color = S_rb_tree_black;
+                    x_parent->M_color = S_rb_tree_red;
+                    Rb_tree_rotate_left(x_parent, root);
+                    w = x_parent->M_right;
+                }
+                if((w->M_left == 0 || w->M_left->M_color == S_rb_tree_black) &&
+                w->M_right == 0 || w->M_right->M_color == S_rb_tree_black)
+                {
+                    w->M_color = S_rb_tree_red;
+                    x = x_parent;
+                    x_parent = x_parent->M_parent;
+                }
+                else
+                {
+                    if(w->M_right == 0 || w->M_right->M_color == S_rb_tree_black)
+                    {
+                        if(w->M_left) w->M_left->M_color = S_rb_tree_black;
+                        w->M_color = S_rb_tree_red;
+                        Rb_tree_rotate_right(w, root);
+                        w = x_parent->M_right;
+                    }
+                    w->M_color = x_parent->M_color;
+                    x_parent->M_color = S_rb_tree_black;
+                    if(w->M_right) w->M_right->M_color = S_rb_tree_black;
+                    Rb_tree_rotate_left(x_parent, root);
+                    break;
+                }
+            }
+            else
+            {
+                Rb_tree_node_base* w = x_parent->M_left;
+                if(w->M_color == S_rb_tree_red)
+                {
+                    w->M_color = S_rb_tree_black;
+                    x_parent->M_color = S_rb_tree_red;
+                    Rb_tree_rotate_right(x_parent, root);
+                    w = x_parent->M_left;
+                }
+                if((w->M_right == 0 || w->M_right->M_color == S_rb_tree_black) &&
+                        (w->M_left == 0 || w->M_left->M_color == S_rb_tree_black))
+                {
+                    w->M_color = S_rb_tree_red;
+                    x = x_parent;
+                    x_parent = x_parent->M_parent;
+                }
+                else
+                {
+                    if(w->M_left == 0 || w->M_left->M_color == S_rb_tree_black)
+                    {
+                        if(w->M_right) w->M_right->M_color = S_rb_tree_black;
+                        w->M_color = S_rb_tree_red;
+                        Rb_tree_rotate_left(w, root);
+                    }
+                    w->M_color = x_parent->M_color;
+                    x_parent->M_color = S_rb_tree_black;
+                    if(w->M_left) w->M_left->M_color = S_rb_tree_black;
+                    Rb_tree_rotate_right(x_parent, root);
+                    break;
+                }
+            }
+        }
+        if(x) x->M_color = S_rb_tree_black;
     }
-
-
-
-    return z;
+    return y;
 }
 
 
@@ -337,20 +400,19 @@ class Rb_tree_alloc_base
 {
 public:
     typedef typename Alloc_traits<Tp, Alloc>::allocator_type allocator_type;
-    allocator_type get_allocator() const { return M_node_allocator; }
+    allocator_type get_allocator() const { return allocator_type(); }
 
-    Rb_tree_alloc_base(const allocator_type& a)
-    : M_node_allocator(a), M_header(0) {}
+    Rb_tree_alloc_base(const allocator_type& a) : M_header(0) {}
 
 protected:
-    typename Alloc_traits<Rb_tree_node<Tp>, Alloc>::allocator_type M_node_allocator;
     Rb_tree_node<Tp>* M_header;
+    typedef typename Alloc_traits<Rb_tree_node<Tp>, Alloc>::Alloc_type Alloc_type;
 
     Rb_tree_node<Tp>* M_get_node()
-    { return M_node_allocator.allocate(1); }
+    { return Alloc_type::allocate(1); }
 
     void M_put_node(Rb_tree_node<Tp>* p)
-    { M_node_allocator.deallocate(p, 1); }
+    { Alloc_type::deallocate(p, 1); }
 };
 
 
@@ -376,18 +438,22 @@ protected:
 };
 
 
-
-
-
-template <class Tp, class Alloc>
-struct Rb_tree_base : public Rb_tree_alloc_base<Tp, Alloc, Alloc_traits<Tp, Alloc>::S_instanceless>
+template <class _Tp, class _Alloc>
+struct Rb_tree_base: public Rb_tree_alloc_base<_Tp, _Alloc,
+                    Alloc_traits<_Tp, _Alloc>::S_instanceless>
 {
-    typedef Rb_tree_alloc_base<Tp, Alloc, Alloc_traits<Tp, Alloc>::S_instanceless> Base;
+public:
+    typedef Rb_tree_alloc_base<_Tp, _Alloc, Alloc_traits<_Tp, _Alloc>::S_instanceless> Base;
     typedef typename Base::allocator_type allocator_type;
 
-    Rb_tree_base(const allocator_type& a):Base(a) { Base::M_header = Base::M_get_node(); }
-    ~Rb_tree_base() { M_put_node(Base::M_header); }
+    using Base::M_header;
+    using Base::M_put_node;
+    using Base::M_get_node;
+
+    Rb_tree_base(const allocator_type& a) : Base(a) { Base::M_header = Base::M_get_node(); }
+    ~Rb_tree_base() { Base::M_put_node(Base::M_header); }
 };
+
 
 
 template <class Key, class Value, class KeyOfValue, class Compare,
@@ -413,7 +479,7 @@ public:
     typedef typename Base::allocator_type allocator_type;
     allocator_type get_allocator() const { return Base::get_allocator(); }
 
-protected:
+public:
     using Base::M_get_node;
     using Base::M_put_node;
     using Base::M_header;
@@ -465,7 +531,7 @@ protected:
     static Link_type& S_right(Link_type x)
     { return (Link_type&) x->M_right; }
     static Link_type& S_parent(Link_type x)
-    { return (Link_type&)(x->parent); }
+    { return (Link_type&)(x->M_parent); }
     static reference S_value(Link_type x)
     { return x->M_value_field; }
     static const Key& S_key(Link_type x)
@@ -690,7 +756,7 @@ Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert(Base_ptr x, Base_ptr y
     Link_type _x = (Link_type) x;
     Link_type _y = (Link_type) y;
     Link_type _z;
-    if(y == M_header || x != 0 || M_key_compare(KeyOfValue()(v), S_key(_y)))
+    if(_y == M_header || _x != 0 || M_key_compare(KeyOfValue()(v), S_key(_y)))
     {
         _z = M_create_node(v);
         S_left(y) = _z;
@@ -700,14 +766,14 @@ Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert(Base_ptr x, Base_ptr y
             M_root() = _z;
             M_rightmost() = _z;
         }
-        else if(y == M_leftmost())
+        else if(_y == M_leftmost())
             M_leftmost() = _z;
     }
     else
     {
         _z = M_create_node(v);
         S_right(_y) = _z;
-        if(y == M_rightmost())
+        if(_y == M_rightmost())
             M_rightmost() = _z;
     }
     S_parent(_z) = _y;
@@ -748,15 +814,13 @@ Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(const Value& v)
     }
     iterator j = iterator(y);
     if(comp)
-    {
         if(j == begin())
             return pair<iterator, bool>(M_insert(x, y, v), true);
         else
             --j;
-        if(M_key_compare(S_key(j.M_node), KeyOfValue()(v)))
-            return pair<iterator, bool>(M_insert(x,y,v), true);
-        return pair<iterator, bool>(j, false);
-    }
+    if(M_key_compare(S_key(j.M_node), KeyOfValue()(v)))
+        return pair<iterator, bool>(M_insert(x,y,v), true);
+    return pair<iterator, bool>(j, false);
 }
 
 
@@ -1026,6 +1090,14 @@ Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::upper_bound(const Key& k) const
     return iterator(y);
 }
 
+template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+inline
+pair<typename Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator,
+     typename Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator>
+Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const Key& k)
+{
+    return pair<iterator, iterator>(lower_bound(k), upper_bound(k));
+}
 
 template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
 inline
@@ -1035,6 +1107,9 @@ Rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const Key& k) const
 {
     return pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
 }
+
+
+
 
 inline int
 __black_count(Rb_tree_node_base* node, Rb_tree_node_base* root)

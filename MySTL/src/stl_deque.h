@@ -510,7 +510,7 @@ private:
             insert(end(), mid, last);
         }
         else
-            std::erase(std::copy(first, last, begin()), end());
+            erase(copy(first, last, begin()), end());
     }
 
 public:
@@ -733,7 +733,7 @@ void deque<Tp, Alloc>::M_assign_aux(InputIterator first, InputIterator last, MyS
     for(; first != last && cur != end(); ++cur, ++first)
         *cur = *first;
     if(first == last)
-        std::erase(cur, end());
+        erase(cur, end());
     else
         insert(end(), first, last);
 }

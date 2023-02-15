@@ -62,21 +62,19 @@ TEST(destroy, All)
     for(int i = 0; i < 10; ++i)
         MySTL::destroy(&pbs[i]);
     MySTL::destroy(test.begin(), test.end());
-    std::destroy(samples.begin(), samples.end());
+    std::_Destroy(samples.begin(), samples.end());
     EXPECT_TRUE(std::equal(pbs, pbs + 10, samples.begin()));
     EXPECT_TRUE(std::equal(test.begin(), test.end(), samples.begin()));
-
 }
 
 
-int main(int argc, char **argv)
-{
-
-    ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
-
-    std::cin.get();
-
-
-    return 0;
-}
+//int main(int argc, char **argv)
+//{
+//
+//    ::testing::InitGoogleTest(&argc, argv);
+//    RUN_ALL_TESTS();
+//
+//    std::cin.get();
+//
+//    return 0;
+//}

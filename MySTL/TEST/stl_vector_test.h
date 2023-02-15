@@ -23,18 +23,6 @@ TEST(Vector_alloc_base, All)
     EXPECT_NE(*p, 0);
 }
 
-TEST(Vector_base, All)
-{
-//    MySTL::Vector_base<int, MySTL::allocator<int>> v(MySTL::allocator<int>());
-//
-//    EXPECT_STREQ(TYPE_SIMPLIFIED(v),
-//    "MySTL::Vector_base<int, MySTL::allocator<int> > (MySTL::allocator<int> (*)())");
-//
-//    MySTL::Vector_base<int, MySTL::allocator<int>> v2(10, MySTL::allocator<int>());
-//    EXPECT_STREQ(TYPE_SIMPLIFIED(v2), "MySTL::Vector_base<int, MySTL::allocator<int> >");
-}
-
-
 
 
 template<typename T>
@@ -158,27 +146,23 @@ TEST(vector, other)
     EXPECT_EQ(test.empty(), v.empty());
     EXPECT_EQ(test.size(), v.size());
     EXPECT_EQ(test.capacity(), v.capacity());
-
-
-
-
 }
 
 
 
-int main(int argc, char **argv)
-{
-
-    ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
-
-    MySTL::vector<std::string> test;
-    test.push_back("the");
-
-    cout << "Press enter to exit..." << endl;
-    cin.get();
-
-    return 0;
-}
+//int main(int argc, char **argv)
+//{
+//
+//    ::testing::InitGoogleTest(&argc, argv);
+//    RUN_ALL_TESTS();
+//
+//    MySTL::vector<std::string> test;
+//    test.push_back("the");
+//
+//    cout << "Press enter to exit..." << endl;
+//    cin.get();
+//
+//    return 0;
+//}
 
 

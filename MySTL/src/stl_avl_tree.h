@@ -5,8 +5,8 @@
 #include "stl_algo.h"
 
 
-#define updateHeight(p) p->height = 1 + max(p->M_left->height, p->M_right->height);
-#define stature(p) ((p) ? p->height : -1)
+#define updateHeight(p) p->M_height = 1 + max(p->M_left->M_height, p->M_right->M_height);
+#define stature(p) ((p) ? p->M_height : -1)
 #define BalFac(x) stature(x->M_left) - stature(x->M_right)
 #define AvlBalanced(x) (-2 < BalFac(x) && (BalFac(x) < 2))
 
@@ -14,6 +14,7 @@
 #define MYSTL_STL_AVL_TREE_H
 namespace MySTL
 {
+
 struct Avl_tree_node_base
 {
     typedef Avl_tree_node_base* Base_ptr;
@@ -21,7 +22,7 @@ struct Avl_tree_node_base
     Base_ptr M_parent;
     Base_ptr M_left;
     Base_ptr M_right;
-    int height;
+    int M_height;
 
     static Base_ptr S_minimum(Base_ptr x)
     {
@@ -265,11 +266,11 @@ Avl_tree_rebalance_for_erase(Avl_tree_node_base* z,
     Avl_tree_node_base* x = 0;   // y 的孩子节点
     Avl_tree_node_base* x_parent = 0;
 
-    if(y->M_left == 0)
-        x = y->M_right;
-    else if(y->M_right == 0)
+    if(y->M_left == 0)       // 左孩子为null
+        x = y->M_right;      // 此时 x 可能为空，可能非空
+    else if(y->M_right == 0) // 右孩子为null，左孩子非null
         x = y->M_left;
-    else
+    else                    // 两个孩子都非null
     {
         y = y->M_right;
         while(y->M_left != 0)
@@ -326,13 +327,11 @@ Avl_tree_rebalance_for_erase(Avl_tree_node_base* z,
                 rightmost = Avl_tree_node_base::S_maximum(x);
     }
 
-    // rebalance_for_erase();
     // 从 x 节点开始向上遍历修复
-    while(x_parent != 0)
+    while(x_parent != root)
     {
         updateHeight(x_parent);
-        if(BalFac(x_parent) == 0) break;
-        else if(BalFac(x_parent) == -1 || BalFac(x_parent) == 1)
+        if(BalFac(x_parent) == -1 || BalFac(x_parent) == 1) // 向上递归
         {
             x = x_parent;
             x_parent = x_parent->M_parent;

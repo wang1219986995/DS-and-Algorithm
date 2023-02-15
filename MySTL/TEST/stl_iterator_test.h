@@ -132,41 +132,21 @@ TEST(insert_iterator, All)
     EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::output_iterator_tag");
 }
 
-TEST(reverse_bidirectional_iterator, All)
-{
-    // MySTL::reverse_bidirectional_iterator<std::vector<int> > reverse_iter;
-    //TODO: 需配合其他迭代器测试
-}
-
-TEST(reverse_iterator, All)
-{
-    std::vector<int> v = {1,2,3, 4, 5};
-    MySTL::reverse_iterator iter(v.end());
-
-    EXPECT_EQ(iter.base(), v.end());
-    EXPECT_EQ(*iter, *(v.end() - 1));
-    EXPECT_EQ(*v.begin(), *(iter + v.size() - 1));
-
-
-    EXPECT_TRUE(std::equal(v.rbegin(), v.rend(), iter));
-
-    //TODO: category 待定
-    // EXPECT_STREQ(TYPE_SIMPLIFIED(MySTL::iterator_category(iter)), "MySTL::random_access_iterator_tag");
-    //TODO: 需配合其他迭代器测试
-}
 
 
 
-int main(int argc, char **argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
 
-    RUN_ALL_TESTS();
 
-    std::cout << "Press enter to exit..." << std::endl;
-    std::cin.get();
-    return 0;
-}
+//int main(int argc, char **argv)
+//{
+//    ::testing::InitGoogleTest(&argc, argv);
+//
+//    RUN_ALL_TESTS();
+//
+//    std::cout << "Press enter to exit..." << std::endl;
+//    std::cin.get();
+//    return 0;
+//}
 
 
 

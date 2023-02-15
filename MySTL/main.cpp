@@ -21,8 +21,12 @@
 
 int main( )
 {
-    MySTL::avl_map<int, int> m;
-    m.insert(MySTL::pair<int, int>(1,1));
+    MySTL::map<int, int> m;
+    for(int i = 0; i < 1000; ++i)
+        m.insert(MySTL::pair<int, int>(i, i+1));
+
+    for(MySTL::map<int, int>::iterator first = m.begin(); first != m.end(); ++first)
+        (*first).second = 1;
 
 
     std::cout << "finish" << std::endl;
