@@ -786,7 +786,7 @@ typename deque<Tp, Alloc>::iterator deque<Tp, Alloc>::erase(iterator first, iter
         difference_type elems_before = first - M_start;
         if(elems_before < difference_type((this->size() - n) / 2))
         {
-            copy_backward(M_start, first, last);
+            MySTL::copy_backward(M_start, first, last);
             iterator new_start = M_start + n;
             MySTL::destroy(M_start, new_start);
             M_destroy_nodes(M_start.M_node, new_start.M_node);
@@ -1273,9 +1273,9 @@ void deque<Tp, Alloc>::M_reallocate_map(size_type nodes_to_add, bool add_at_fron
     {
         new_nstart = M_map + (M_map_size - new_num_nodes) / 2 + (add_at_front? nodes_to_add : 0);
         if(new_nstart < M_start.M_node)
-            copy(M_start.M_node, M_finish.M_node + 1, new_nstart);
+            MySTL::copy(M_start.M_node, M_finish.M_node + 1, new_nstart);
         else
-            copy_backward(M_start.M_node, M_finish.M_node + 1, new_nstart + old_num_nodes);
+            MySTL::copy_backward(M_start.M_node, M_finish.M_node + 1, new_nstart + old_num_nodes);
     }
     else
     {
@@ -1283,7 +1283,7 @@ void deque<Tp, Alloc>::M_reallocate_map(size_type nodes_to_add, bool add_at_fron
 
         Map_pointer new_map = M_allocate_map(new_map_size);
         new_nstart = new_map + ( new_map_size - new_num_nodes) / 2 + (add_at_front ? nodes_to_add : 0);
-        copy(M_start.M_node, M_finish.M_node + 1, new_nstart);
+        MySTL::copy(M_start.M_node, M_finish.M_node + 1, new_nstart);
         M_deallocate_map(M_map, M_map_size);
 
         M_map = new_map;

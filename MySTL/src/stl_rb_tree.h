@@ -162,6 +162,7 @@ inline void Rb_tree_rotate_left(Rb_tree_node_base* x, Rb_tree_node_base*& root)
 {
     Rb_tree_node_base* y = x->M_right;
     x->M_right = y->M_left;
+
     if(y->M_left != 0)
         y->M_left->M_parent = x;
     y->M_parent = x->M_parent;
@@ -404,7 +405,8 @@ public:
 
     Rb_tree_alloc_base(const allocator_type& a) : M_header(0) {}
 
-protected:
+// protected:
+public:
     Rb_tree_node<Tp>* M_header;
     typedef typename Alloc_traits<Rb_tree_node<Tp>, Alloc>::Alloc_type Alloc_type;
 

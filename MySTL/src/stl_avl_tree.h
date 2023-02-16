@@ -5,8 +5,8 @@
 #include "stl_algo.h"
 
 
-#define updateHeight(p) p->M_height = 1 + max(p->M_left->M_height, p->M_right->M_height);
 #define stature(p) ((p) ? p->M_height : -1)
+#define updateHeight(p) p->M_height = 1 + max(stature(p->M_left), stature(p->M_right));
 #define BalFac(x) stature(x->M_left) - stature(x->M_right)
 #define AvlBalanced(x) (-2 < BalFac(x) && (BalFac(x) < 2))
 
@@ -14,6 +14,8 @@
 #define MYSTL_STL_AVL_TREE_H
 namespace MySTL
 {
+
+
 
 struct Avl_tree_node_base
 {
@@ -43,6 +45,7 @@ struct Avl_tree_node : public Avl_tree_node_base
     typedef Avl_tree_node<Value>* Link_type;
     Value M_value_field;
 };
+
 
 
 struct Avl_tree_base_iterator
@@ -156,41 +159,37 @@ inline Value* value_type(const Avl_tree_iterator<Value, Ref, Ptr>&)
 
 
 
-void rotateL(Avl_tree_node_base* p, Avl_tree_node_base* header)
+void rotateL(Avl_tree_node_base* p, Avl_tree_node_base*& root)
 {
     Avl_tree_node_base* childR = p->M_right;
     Avl_tree_node_base* childRL = childR->M_left;
-    Avl_tree_node_base* g = p->M_parent;
+    Avl_tree_node_base* g = p->M_parent; // g 可能为M_header
 
     p->M_right = childRL;
     if(childRL) childRL->M_parent = p;
 
+    childR->M_parent = p->M_parent;
+
+    if(p == root)
+        root = childR;
+    else if(p == p->M_parent->M_left)
+        p->M_parent->M_left = p;
+    else
+        p->M_parent->M_right = p;
+
     childR->M_left = p;
     p->M_parent = childR;
 
-    if(g == header)
-    {
-        childR->M_parent = 0;
-        header->M_parent = childR;
-    }
-    else
-    {
-        childR->M_parent = g;
-        if(p == g->M_left)
-            g->M_left = childR;
-        else
-            g->M_right = childR;
-    }
     updateHeight(p);
     updateHeight(childR);
     updateHeight(g);
 }
 
-void rotateR(Avl_tree_node_base* p, Avl_tree_node_base* header)
+void rotateR(Avl_tree_node_base* p, Avl_tree_node_base*& root)
 {
     Avl_tree_node_base* childL = p->M_left;
     Avl_tree_node_base* childLR = childL->M_right;
-    Avl_tree_node_base* g = p->M_parent;
+    Avl_tree_node_base* g = p->M_parent; // g 可能为M_header
 
 
     p->M_right = childLR;
@@ -199,59 +198,49 @@ void rotateR(Avl_tree_node_base* p, Avl_tree_node_base* header)
     childL->M_right = p;
     p ->M_parent = childL;
 
-    if(g == 0)
-    {
-        childL->M_parent = 0;
-        header->M_parent = childL;
-    }
+    childL->M_parent = p->M_parent;
+    if(p == root)
+        root = childL;
+    else if( p == p->M_parent->M_left)
+        p->M_parent->M_left = p;
     else
-    {
-        childL->M_parent = g;
-        if(p == g->M_left)
-            g->M_left = childL;
-        else
-            g->M_right = childL;
-    }
+        p->M_parent->M_right = p;
     updateHeight(p);
     updateHeight(childL);
     updateHeight(g);
 }
 
-void Avl_tree_rebalance_for_insert(Avl_tree_node_base* p, Avl_tree_node_base* g, Avl_tree_node_base* header)
+// p 为插入节点父节点，g 应该没用
+void Avl_tree_rebalance_for_insert(Avl_tree_node_base* p, Avl_tree_node_base*& root)
 {
-    while(p != 0)
+    while(p != root->M_parent)
     {
+        Avl_tree_node_base* p_next = p->M_parent;
         updateHeight(p);
-        if(BalFac(p) == 0) break;
-        else if(BalFac(p) == -1 || BalFac(p) == 1)
+        if(BalFac(p) <= -2 || BalFac(p) >= 2)
         {
-            p = g;
-            g = p->M_parent;
-        }
-        else
-        {
-            if(BalFac(g) == 2)
+            if(BalFac(p) == 2)
             {
-                if(BalFac(p) == 1)
-                    rotateR(g, header);
-                else
+                if(BalFac(p->M_left) == -1)
                 {
-                    rotateL(p, header);
-                    rotateR(g, header);
+                    rotateL(p->M_left, root);
+                    rotateR(p, root);
                 }
+                else
+                    rotateR(p, root);
             }
-            else if(BalFac(g) == -2)
+            else if(BalFac(p) == -2)
             {
-                if(BalFac(p) == -1)
-                    rotateL(g, header);
-                else
+                if(BalFac(p->M_right) == 1)
                 {
-                    rotateR(p, header);
-                    rotateL(g, header);
+                    rotateR(p->M_right, root);
+                    rotateL(p, root);
                 }
+                else
+                    rotateL(p, root);
             }
-            break;
         }
+        p = p_next;
     }
 }
 
@@ -328,40 +317,35 @@ Avl_tree_rebalance_for_erase(Avl_tree_node_base* z,
     }
 
     // 从 x 节点开始向上遍历修复
-    while(x_parent != root)
+    while(x_parent != root->M_parent)
     {
+        Avl_tree_node_base* x_next = x_parent->M_parent;
         updateHeight(x_parent);
-        if(BalFac(x_parent) == -1 || BalFac(x_parent) == 1) // 向上递归
-        {
-            x = x_parent;
-            x_parent = x_parent->M_parent;
-        }
-        else
+        if(BalFac(x_parent) <= -2 || BalFac(x_parent) >= 2)
         {
             if(BalFac(x_parent) == 2)
             {
-                if(BalFac(x) == -1)
+                if(BalFac(x_parent->M_left) == -1)
                 {
-                    rotateL(x, M_header);
-                    rotateR(x_parent, M_header);
+                    rotateL(x_parent->M_left, root);
+                    rotateR(x_parent, root);
                 }
                 else
-                    rotateR(x_parent, M_header);
+                    rotateR(x_parent, root);
             }
             else if(BalFac(x_parent) == -2)
             {
-                if(BalFac(x) == 1)
+                if(BalFac(x_parent->M_right) == 1)
                 {
-                    rotateR(x, M_header);
-                    rotateL(x_parent, M_header);
+                    rotateR(x_parent->M_right, root);
+                    rotateL(x_parent, root);
                 }
                 else
-                    rotateL(x_parent, M_header);
+                    rotateL(x_parent, root);
             }
-            break;
         }
+        x_parent = x_next;
     }
-
 }
 
 
@@ -714,6 +698,7 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert
     if(y == M_header || x != 0 || M_key_compare(KeyOfValue()(v), S_key(y))) // 这三种条件都是插入为左孩子
     {
         z = M_create_node(v);
+        z->M_height = 0;
         S_left(y) = z;  // 树为空时， 此处执行后 M_header->M_left = z; M_leftmost() == z;
 
         if(y == M_header)
@@ -727,14 +712,15 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::M_insert
     else
     {
         z = M_create_node(v);
-        S_right(y) = z;  //TODO 更新高度在那更新呢？
+        z->M_height = 0;
+        S_right(y) = z;
         if(y == M_rightmost())
             M_rightmost() = z;
     }
     S_parent(z) = y;
     S_left(z) = 0;
     S_right(z) = 0;
-    Avl_tree_rebalance_for_insert(y);
+    Avl_tree_rebalance_for_insert(y, M_header->M_parent);
     ++M_node_count;
     return iterator(z);
 }
@@ -772,14 +758,14 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::insert_unique(const Value& v)
     }
 
     iterator j = iterator(y);
-    if(comp)
+    if(comp)  // x < y , x 为 v 插入的地方
         if(j == begin())
             return pair<iterator, bool>(M_insert(x, y, v), true);
         else
             --j;
-        if(M_key_compare(S_key(j.M_node), KeyOfValue()(v)))
-            return pair<iterator, bool>(M_insert(x, y, v), true);
-    return pair<iterator, bool>(j, false);
+    if(M_key_compare(S_key(j.M_node), KeyOfValue()(v)))
+        return pair<iterator, bool>(M_insert(x, y, v), true);
+    return pair<iterator, bool>(j, false); // 已存在元素v
 }
 
 
@@ -1083,12 +1069,12 @@ Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::equal_range(const key_type &k)
     return pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
 }
 
-template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
-bool Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::avl_verift() const
-{
-
-}
-
+//template <class Key, class Value, class KeyOfValue, class Compare, class Alloc>
+//bool Avl_tree<Key, Value, KeyOfValue, Compare, Alloc>::avl_verift() const
+//{
+//
+//}
+//
 
 
 } // namespace

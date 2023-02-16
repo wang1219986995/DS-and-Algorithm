@@ -73,21 +73,20 @@ TEST(default_alloc, public)
     tmp = (int*)first;
     EXPECT_EQ(0, *tmp ++);
     EXPECT_EQ(1, *tmp);
-
 }
 
 } // namespace
 
-//int main(int argc, char **argv)
-//{
-//    ::testing::InitGoogleTest(&argc, argv);
-//
-//    RUN_ALL_TESTS();
-//
-//    cout << "Press enter to exit..." << endl;
-//    cin.get();
-//    return 0;
-//}
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+
+    RUN_ALL_TESTS();
+
+    cout << "Press enter to exit..." << endl;
+    cin.get();
+    return 0;
+}
 
 
 

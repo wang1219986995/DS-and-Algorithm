@@ -41,6 +41,7 @@ TEST(map_erase, int)
         my_m.insert(MySTL::pair<int, int>(i, 2 * i));
         std_m.insert(std::pair<int, int>(i, 2 * i));
     }
+    std::cout << my_m.M_t.M_header->M_parent->M_parent << std::endl;
     EXPECT_EQ(my_m.size(), std_m.size());
     EXPECT_TRUE(std::equal(std_m.begin(), std_m.end(), my_m.begin(),
                            predicate_test<std::pair<int, int>, MySTL::pair<int, int>>()));
@@ -68,12 +69,12 @@ TEST(map_other, int)
 
 
 
-//int main(int argc, char **argv)
-//{
-//    ::testing::InitGoogleTest(&argc, argv);
-//    RUN_ALL_TESTS();
-//
-//    std::cout << "Press enter to exit..." << std::endl;
-//    std::cin.get();
-//    return 0;
-//}
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    RUN_ALL_TESTS();
+
+    std::cout << "Press enter to exit..." << std::endl;
+    std::cin.get();
+    return 0;
+}

@@ -7,7 +7,8 @@
 #include "TEST/stl_vector_test.h"
 #include "TEST/stl_uninitialized_test.h"
 #include "TEST/stl_iterator_test.h"
-#include "TEST/stl_alloc_test.h"
+#include "TEST/stl_algo_test.h"
+#include "TEST/stl_deque_test.h"
 
 
 
@@ -23,6 +24,5 @@ int main (int argc, char **argv)
     std::cout << "Press enter to exit..." << std::endl;
     std::cin.get();
 
-    return 0;
     return 0;
 }
