@@ -213,13 +213,13 @@ template <class Key, class Tp, class Compare = std::less<Key>,
         class Alloc = allocator<Tp>, int TargetNodeSize=256>
 class btree_map;
 
-template <class Key, class Tp, class Compare, class Alloc>
-inline bool operator==(const btree_map<Key, Tp, Compare, Alloc>& x,
-                           const btree_map<Key, Tp, Compare, Alloc>& y);
+template <class Key, class Tp, class Compare, class Alloc, int TargetNodeSize>
+inline bool operator==(const btree_map<Key, Tp, Compare, Alloc, TargetNodeSize>& x,
+                           const btree_map<Key, Tp, Compare, Alloc, TargetNodeSize>& y);
 
-template <class Key, class Tp, class Compare, class Alloc>
-inline bool operator<(const btree_map<Key, Tp, Compare, Alloc>& x,
-                          const btree_map<Key, Tp, Compare, Alloc>& y);
+template <class Key, class Tp, class Compare, class Alloc, int TargetNodeSize>
+inline bool operator<(const btree_map<Key, Tp, Compare, Alloc, TargetNodeSize>& x,
+                          const btree_map<Key, Tp, Compare, Alloc, TargetNodeSize>& y);
 
 
 template <class Key, class Tp, class Compare, class Alloc, int TargetNodeSize>
